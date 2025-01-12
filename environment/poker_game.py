@@ -1,9 +1,13 @@
 import random
-import utils
+import time
 from itertools import combinations
+from utils.utils import evaluate_hand, compare_hands
 
-# remove active players in list when folded, iterating over less players each time 
-# -> more efficient way of implementing this.
+# Need to ensure that when one player raises, the other either folds or calls that raise
+# also need to implement mechanic that when a player goes first, they set the bet.
+# -> to do this, need to have big blind and small blind indexes that rotate every game. 
+# The action is dependent on these indexes, however, it changes as players fold, there should be a action pointer 
+# which is an index of whoever the action is on
 
 class PokerEnv:
     """
@@ -70,23 +74,36 @@ class PokerEnv:
         
         # Deal initial hands to all players
         self._deal_hand()
+        print("\n=== Starting New Poker Game ===")
+        print("Initial hands dealt to players")
+        time.sleep(1)
         
         # Pre-flop betting round
+        print("\n=== Pre-Flop Betting Round ===")
         self.step()
         
         # Flop (reveal first 3 community cards)
         if not self.is_game_over():
-            self.game_state["community_cards"].extend([self.game_state["deck"].pop() for _ in range(3)])
+            flop_cards = [self.game_state["deck"].pop() for _ in range(3)]
+            self.game_state["community_cards"].extend(flop_cards)
+            print(f"\n=== Flop ===\nCommunity Cards: {', '.join(map(str, self.game_state['community_cards']))}")
+            time.sleep(1)
             self.step()
         
         # Turn (4th community card)
         if not self.is_game_over():
-            self.game_state["community_cards"].append(self.deck.pop())
+            turn_card = self.game_state["deck"].pop()
+            self.game_state["community_cards"].append(turn_card)
+            print(f"\n=== Turn ===\nCommunity Cards: {', '.join(map(str, self.game_state['community_cards']))}")
+            time.sleep(1)
             self.step()
             
         # River (5th community card)
         if not self.is_game_over():
-            self.game_state["community_cards"].append(self.deck.pop())
+            river_card = self.game_state["deck"].pop()
+            self.game_state["community_cards"].append(river_card)
+            print(f"\n=== River ===\nCommunity Cards: {', '.join(map(str, self.game_state['community_cards']))}")
+            time.sleep(1)
             self.step()
             
         # End the game and determine the winner
@@ -123,29 +140,37 @@ class PokerEnv:
         # Deal 2 cards to each agent
         for _ in range(2):  # Deal 2 cards per agent
             for agent in self.game_state["active_players"]:
-                agent.hand.append(self.deck.pop())
+                agent.hand.append(self.game_state["deck"].pop())
 
 
     def _apply_action(self, agent, action, amount):
         # Logic for applying agent's action to the environment
         if action == "fold":
+            print(f"\nAgent {agent.name} folds")
+            time.sleep(0.5)
             agent.folded = True
             self.game_state["total_players"] -= 1
             self.game_state["folded_players"].append(agent)
             self.game_state["active_players"].remove(agent)
         elif action == "call":
             if agent.stack >= self.game_state["current_bet"]:
+                print(f"\nAgent {agent.name} calls (${self.game_state['current_bet']})")
+                time.sleep(0.5)
                 # Agent matches the current bet
                 agent.stack -= self.game_state["current_bet"]
                 agent.net_profit -= self.game_state["current_bet"]
                 self.game_state["pot"] += self.game_state["current_bet"]
             else:
                 # Agent goes all-in
+                print(f"\nAgent {agent.name} goes all-in with ${agent.stack}!")
+                time.sleep(0.5)
                 self.game_state["pot"] += agent.stack
                 agent.net_profit -= agent.stack
                 agent.stack = 0
         elif action == "raise":
             if amount <= agent.stack:
+                print(f"\nAgent {agent.name} raises to ${amount}")
+                time.sleep(0.5)
                 # Agent raises the pot
                 agent.stack -= amount
                 agent.net_profit -= amount
@@ -180,7 +205,7 @@ class PokerEnv:
         if self.game_state["total_players"] == 1:
             winner = self.game_state["active_players"][0]
             winner.stack += self.game_state["pot"]
-            winner.net_gain += self.game_state["pot"]
+            winner.net_profit += self.game_state["pot"]
             return winner, "Last Man Standing"
             
         # Compare hands of all active players
@@ -196,11 +221,11 @@ class PokerEnv:
             for five_cards in combinations(all_cards, 5):
                 if not best_hand:
                     best_hand = five_cards
-                    best_hand_value = utils.evaluate_hand(five_cards)
+                    best_hand_value = evaluate_hand(five_cards)
                 else:
-                    current_hand_value = utils.evaluate_hand(five_cards)
+                    current_hand_value = evaluate_hand(five_cards)
                     # Compare with current best hand
-                    if utils.compare_hands(five_cards, best_hand) == 1:
+                    if compare_hands(five_cards, best_hand) == 1:
                         best_hand = five_cards
                         best_hand_value = current_hand_value
             
@@ -209,7 +234,7 @@ class PokerEnv:
         # Find the winner(s)
         winners = [player_hands[0]]
         for hand in player_hands[1:]:
-            comparison = utils.compare_hands(hand[1], winners[0][1])
+            comparison = compare_hands(hand[1], winners[0][1])
             if comparison > 0:  # This hand is better
                 winners = [hand]
             elif comparison == 0:  # This hand ties
@@ -219,7 +244,7 @@ class PokerEnv:
         split_amount = self.game_state["pot"] // len(winners)
         for winner, _, hand_value in winners:
             winner.stack += split_amount
-            winner.net_gain += split_amount
+            winner.net_profit += split_amount
         self.game_state["pot"] = 0
         
         return winners[0][0], winners[0][2][0]  # Return first winner and their hand type

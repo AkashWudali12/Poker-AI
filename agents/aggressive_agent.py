@@ -1,4 +1,4 @@
-from base_agent import BaseAgent
+from .base_agent import BaseAgent
 
 class AggressiveAgent(BaseAgent):
     def __init__(self, name, reasoning_engine):

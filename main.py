@@ -13,15 +13,27 @@ def main():
     agent2 = AggressiveAgent("AggressivePlayer", rule_engine)
     agent3 = RandomAgent("RandomPlayer", rule_engine)
 
-    # Create the environment
-    env = PokerEnv([agent1, agent2, agent3])
+    agents = [RandomAgent("Player 1", rule_engine), 
+              RandomAgent("Player 2", rule_engine), 
+              RandomAgent("Player 3", rule_engine)]
 
-    # Run one round or multiple rounds
-    env.reset()
-    while not env.is_game_over():
-        env.step()
+    # Create the environment
+    env = PokerEnv(agents, 20)
+    rounds = 5
+
+    for i in range(rounds):
+        print(f"Round {i+1} of {rounds}")
+        env.play()
+        print("=====================================")    
 
     print("Game over!")
+    print("=====================================")
+    print("Final results:")
+    for agent in agents:
+        print(f"{agent.name}: {agent.stack}")
+        print(f"Net profit: {agent.net_profit}")
+        print("=====================================")
+    
 
 if __name__ == "__main__":
     main()
