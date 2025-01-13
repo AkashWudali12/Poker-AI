@@ -15,15 +15,17 @@ def main():
 
     agents = [RandomAgent("Player 1", rule_engine), 
               RandomAgent("Player 2", rule_engine), 
-              RandomAgent("Player 3", rule_engine)]
+              RandomAgent("Player 3", rule_engine),
+              RandomAgent("Player 4", rule_engine)]
 
     # Create the environment
     env = PokerEnv(agents, 20)
-    rounds = 5
+    rounds = 1
 
     for i in range(rounds):
         print(f"Round {i+1} of {rounds}")
         env.play()
+        env.rotate()
         print("=====================================")    
 
     print("Game over!")

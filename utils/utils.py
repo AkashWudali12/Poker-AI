@@ -30,11 +30,28 @@ def evaluate_hand(cards):
     
     # Check for straight
     is_straight = False
-    if len(set(values)) == 5:
-        if max(values) - min(values) == 4:
+    poker_values = {
+        "2": 2,
+        "3": 3,
+        "4": 4,
+        "5": 5,
+        "6": 6,
+        "7": 7,
+        "8": 8,
+        "9": 9,
+        "10": 10,
+        "J": 11,
+        "Q": 12,
+        "K": 13,
+        "A": 14
+    }
+
+    straight_values = [poker_values[v] for v in values]
+    if len(set(straight_values)) == 5:
+        if max(straight_values) - min(straight_values) == 4:
             is_straight = True
         # Check for Ace-low straight (A,2,3,4,5)
-        elif values == [14, 5, 4, 3, 2]:
+        elif straight_values == [14, 5, 4, 3, 2]:
             is_straight = True
             values = [5, 4, 3, 2, 1]  # Ace counts as low
     

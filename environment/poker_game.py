@@ -2,7 +2,7 @@ import random
 import time
 from itertools import combinations
 from utils.utils import evaluate_hand, compare_hands
-from poker_table import PokerTable
+from .poker_table import PokerTable
 
 class PokerEnv:
     """
@@ -51,6 +51,8 @@ class PokerEnv:
                 self.buy_in
             curr.agent.hand = []
             curr.agent.folded = False
+            curr.agent.current_bet = 0
+            curr.agent.previous_action = None
             curr = curr.next
         
         # Reset round-specific state
@@ -134,12 +136,20 @@ class PokerEnv:
         """
 
         curr_action_agent = self.table.get_action()
-        index, index_to_stop_at = 0, 0 # action agent set as index 0
-        started = False
+        settled_count, total_count = 0, 0 # number of players that settled on a bet, total players that went
+        previous_action = None
         while True:
-            if not curr_action_agent.folded:
+            if not curr_action_agent.agent.folded:
+                print("Current Agent:", curr_action_agent.agent.name)
+                print()
+                print("Current Bet On Table:", self.current_bet)
+                print()
+                if self.total_players == 1:
+                    break
+
                 agent_state = {
                     "game_stage": self.round_stage,
+                    "previous_action": previous_action,
                     "hand": curr_action_agent.agent.hand,
                     "community_cards": self.community_cards,
                     "pot": self.pot,
@@ -147,25 +157,32 @@ class PokerEnv:
                     "buy_in": self.buy_in,
                     "small_blind": self.small_blind,
                     "big_blind": self.big_blind,
-                    "active_players": self.active_players
                 }
                 action, amount = curr_action_agent.agent.decide_action(agent_state)
                 self._apply_action(curr_action_agent.agent, action, amount)
-            
-            if action == "raise":
-                index_to_stop_at = index
+
+                previous_action = (action, amount)
+
+                if action == "check" or action == "call":
+                    settled_count += 1            
+                total_count += 1
+
+                if total_count == self.total_players:
+                    if settled_count == self.total_players:
+                        print("\n=== All players have settled on a bet. ===")
+                        self.current_bet = 0
+                        for agent in self.agents:
+                            agent.current_bet = 0
+                        break
+                    else:
+                        settled_count = 0
+                        total_count = 0
 
             curr_action_agent = curr_action_agent.next
-            if index < self.table.size() - 1:
-                index += 1
-            else:
-                index = 0
+    
+    def rotate(self):
+        self.table.move_positions()
             
-            if started and index == index_to_stop_at:
-                break
-            if not started:
-                started = True
-
     def _end_game(self):
         winner, hand_type = self._determine_winner()
         if hand_type == "Last Man Standing":
@@ -189,18 +206,20 @@ class PokerEnv:
         """
         # Small Blind
         small_blind_agent = self.table.get_small_blind()
-        print(f"\nAgent {small_blind_agent.name} posts small blind (${self.small_blind})")
+        print(f"\nAgent {small_blind_agent.agent.name} posts small blind (${self.small_blind})")
         time.sleep(0.5)
-        small_blind_agent.stack -= self.small_blind
-        small_blind_agent.net_profit -= self.small_blind
+        small_blind_agent.agent.stack -= self.small_blind
+        small_blind_agent.agent.current_bet += self.small_blind
+        small_blind_agent.agent.net_profit -= self.small_blind
         self.pot += self.small_blind
 
         # Big Blind
         big_blind_agent = self.table.get_big_blind()
-        print(f"Agent {big_blind_agent.name} posts big blind (${self.big_blind})")
+        print(f"Agent {big_blind_agent.agent.name} posts big blind (${self.big_blind})")
         time.sleep(0.5)
-        big_blind_agent.stack -= self.big_blind
-        big_blind_agent.net_profit -= self.big_blind
+        big_blind_agent.agent.stack -= self.big_blind
+        big_blind_agent.agent.current_bet += self.big_blind
+        big_blind_agent.agent.net_profit -= self.big_blind
         self.pot += self.big_blind
         self.current_bet = self.big_blind
 
@@ -215,41 +234,22 @@ class PokerEnv:
             self.total_players -= 1
 
         elif action == "call":
-            if agent.stack >= self.current_bet:
-                print(f"\nAgent {agent.name} calls (${self.current_bet})")
-                time.sleep(0.5)
-                agent.stack -= self.current_bet
-                agent.net_profit -= self.current_bet
-                agent.current_bet += self.current_bet
-                self.pot += self.current_bet
-            else:
-                # Agent goes all-in
-                print(f"\nAgent {agent.name} goes all-in with ${agent.stack}!")
-                time.sleep(0.5)
-                self.pot += agent.stack
-                agent.current_bet += agent.stack
-                agent.net_profit -= agent.stack
-                agent.stack = 0
+            print(f"\nAgent {agent.name} calls ${amount}")
+            agent.stack -= amount
+            agent.net_profit -= amount
+            agent.current_bet += amount
+            self.pot += amount
+            time.sleep(0.5)
 
         elif action == "raise":
             # If the raise amount is within the agent's stack
-            if amount <= agent.stack:
-                print(f"\nAgent {agent.name} raises to ${amount}")
-                time.sleep(0.5)
-                agent.stack -= amount
-                agent.net_profit -= amount
-                agent.current_bet += amount
-                self.pot += amount
-                self.current_bet = amount
-            else:
-                # Agent goes all-in
-                print(f"\nAgent {agent.name} goes all-in (cannot raise beyond stack).")
-                time.sleep(0.5)
-                self.pot += agent.stack
-                agent.net_profit -= agent.stack
-                self.current_bet = agent.stack
-                agent.current_bet += agent.stack
-                agent.stack = 0
+            print(f"\nAgent {agent.name} raises by ${amount}")
+            time.sleep(0.5)
+            agent.stack -= amount
+            agent.net_profit -= amount
+            self.current_bet = (amount + agent.current_bet)
+            agent.current_bet += amount
+            self.pot += amount
 
     def is_game_over(self):
         """
@@ -273,31 +273,34 @@ class PokerEnv:
         """
         # If only one player hasn't folded, that player wins automatically
         if self.total_players == 1:
-            winner = self.active_players[0]
+            winner = [agent for agent in self.agents if not agent.folded][0]
             winner.stack += self.pot
             winner.net_profit += self.pot
             return winner, "Last Man Standing"
         
         # Otherwise, compare the best 5-card hands for each active player
         player_hands = []
-        for player in self.active_players:
-            # Combine community cards with player's hole cards
-            all_cards = self.community_cards + player.hand
-            best_hand = None
-            best_hand_value = None
-            
-            # Evaluate all possible 5-card combinations
-            for five_cards in combinations(all_cards, 5):
-                if best_hand is None:
-                    best_hand = five_cards
-                    best_hand_value = evaluate_hand(five_cards)
-                else:
-                    current_value = evaluate_hand(five_cards)
-                    if compare_hands(five_cards, best_hand) == 1:
+        player = self.table.get_head()
+        for _ in range(self.table.size()):
+            if not player.agent.folded:
+                # Combine community cards with player's hole cards
+                all_cards = self.community_cards + player.agent.hand
+                best_hand = None
+                best_hand_value = None
+                
+                # Evaluate all possible 5-card combinations
+                for five_cards in combinations(all_cards, 5):
+                    if best_hand is None:
                         best_hand = five_cards
-                        best_hand_value = current_value
-            
-            player_hands.append((player, best_hand, best_hand_value))
+                        best_hand_value = evaluate_hand(five_cards)
+                    else:
+                        current_value = evaluate_hand(five_cards)
+                        if compare_hands(five_cards, best_hand) == 1:
+                            best_hand = five_cards
+                            best_hand_value = current_value
+                
+                player_hands.append((player.agent, best_hand, best_hand_value))
+            player = player.next
         
         # Find the winner(s) – compare best hands
         winners = [player_hands[0]]

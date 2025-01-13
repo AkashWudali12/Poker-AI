@@ -18,6 +18,7 @@ class BaseAgent(ABC):
         self.stack = 0 # current stack
         self.net_profit = 0 # Track the agent's net gain/loss
         self.folded = False  # Flag to indicate if the agent has folded
+        self.previous_action = None
 
     @abstractmethod
     def decide_action(self, game_state):
