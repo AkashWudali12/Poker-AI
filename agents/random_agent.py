@@ -7,7 +7,8 @@ class RandomAgent(BaseAgent):
 
     def decide_action(self, game_state):
         # Possibly just picks actions at random or uses minimal logic
-        possible_actions = ["fold", "call", "raise"]
+        possible_actions = ["fold", "call", "raise", "check"]
+
         action = random.choice(possible_actions)
         if action == "raise":
             # Random raise size example
