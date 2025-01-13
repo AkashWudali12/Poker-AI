@@ -1,6 +1,7 @@
 from agents.passive_agent import PassiveAgent
 from agents.aggressive_agent import AggressiveAgent
 from agents.random_agent import RandomAgent
+from agents.user_agent import UserAgent
 from reasoning.rule_based import RuleBasedReasoning
 from environment.poker_game import PokerEnv
 
@@ -16,7 +17,7 @@ def main():
     agents = [RandomAgent("Player 1", rule_engine), 
               RandomAgent("Player 2", rule_engine), 
               RandomAgent("Player 3", rule_engine),
-              RandomAgent("Player 4", rule_engine)]
+              UserAgent("User", rule_engine)]
 
     # Create the environment
     env = PokerEnv(agents, 20)
