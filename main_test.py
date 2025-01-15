@@ -5,7 +5,7 @@ from agents.user_agent import UserAgent
 from reasoning.rule_based import RuleBasedReasoning
 from environment.poker_game import PokerEnv
 
-def main():
+def start_game():
     # Initialize a reasoning engine (rule-based for now)
     rule_engine = RuleBasedReasoning()
 
@@ -39,4 +39,4 @@ def main():
     
 
 if __name__ == "__main__":
-    main()
+    start_game()

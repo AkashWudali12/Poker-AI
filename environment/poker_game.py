@@ -3,16 +3,20 @@ import time
 from itertools import combinations
 from utils.utils import evaluate_hand, compare_hands
 from .poker_table import PokerTable
+from game_objects.poker_game_animations import PokerGameAnimations
+import pygame
+from components.button import Button
 
 class PokerEnv:
     """
     A simple environment to manage a multi-agent poker game.
     """
 
-    def __init__(self, agents, buy_in):
+    def __init__(self, agents, buy_in, screen):
         """
         :param agents: List of agent instances (e.g. [ConservativeAgent(...), AggressiveAgent(...), ...])
         :param buy_in: starting amount in dollars for each player
+        :param screen: pygame screen object
         """
 
         self.agents = agents
@@ -37,6 +41,9 @@ class PokerEnv:
 
         self.table = PokerTable(self.agents)
         self.total_players = self.table.size()
+
+        self.screen = screen
+        self._init_frontend()
 
     def reset(self):
         """
@@ -66,6 +73,7 @@ class PokerEnv:
 
         self.round_stage = "Not Started"
 
+
     def play(self):
         """
         Play a complete poker game from start to finish.
@@ -77,57 +85,83 @@ class PokerEnv:
         else:
             self.started = True
         
-        # Deal initial hands to all players
-        self._deal_hand()
-        print("\n=== Starting New Poker Game ===")
-        print("Initial hands dealt to players")
-        time.sleep(1)
+        while self.running:
+            dt = self.clock.tick(60)
+            event_list = pygame.event.get()
 
-        self._blinds()
-        print("\n=== Handling Blinds ===")
-        print(f"Small blind pays {self.small_blind}")
-        print(f"Big blind pays {self.big_blind}")
-        time.sleep(1)
+            for event in event_list:
+                if event.type == pygame.QUIT:
+                    self.running = False
+                    self.next_scene = "quit"
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_SPACE:
+                        # Start a new round when space is pressed
+                        self._deal_hand()  
+                        print("\n=== Starting New Poker Game ===")
+                        print("Initial hands dealt to players")
+                        time.sleep(1)
+
+                        self._blinds()
+                        print("\n=== Handling Blinds ===")
+                        print(f"Small blind pays {self.small_blind}")
+                        print(f"Big blind pays {self.big_blind}")
+                        time.sleep(1)
         
-        # Pre-Flop betting round
-        print("\n=== Pre-Flop Betting Round ===")
-        self.round_stage = "Pre-Flop"
-        self.step()
+            # Update animations
+            self.animations.update(dt)
+
+            # Update button states
+            for btn in self.buttons:
+                btn.update(event_list)
+
+            # Draw everything
+            self.screen.blit(self.background, (0, 0))
+            
+            # Draw game animations
+            self.animations.draw()
+            
+            # Draw buttons
+            for btn in self.buttons:
+                btn.draw(self.screen)
+
+            pygame.display.flip()
+
+        return self.next_scene
         
-        # Flop (first 3 community cards)
-        if not self.is_game_over():
-            flop_cards = [self.deck.pop() for _ in range(3)]
-            self.community_cards.extend(flop_cards)
-            self.round_stage = "Flop"
-            print(f"\n=== Flop ===\nCommunity Cards: {', '.join(map(str, self.community_cards))}")
-            time.sleep(1)
-            self.step()
+        # # Pre-Flop betting round
+        # print("\n=== Pre-Flop Betting Round ===")
+        # self.round_stage = "Pre-Flop"
+        # self.step()
         
-        # Turn (4th community card)
-        if not self.is_game_over():
-            turn_card = self.deck.pop()
-            self.community_cards.append(turn_card)
-            self.round_stage = "Turn"
-            print(f"\n=== Turn ===\nCommunity Cards: {', '.join(map(str, self.community_cards))}")
-            time.sleep(1)
-            self.step()
+        # # Flop (first 3 community cards)
+        # if not self.is_game_over():
+        #     flop_cards = [self.deck.pop() for _ in range(3)]
+        #     self.community_cards.extend(flop_cards)
+        #     self.round_stage = "Flop"
+        #     print(f"\n=== Flop ===\nCommunity Cards: {', '.join(map(str, self.community_cards))}")
+        #     time.sleep(1)
+        #     self.step()
         
-        # River (5th community card)
-        if not self.is_game_over():
-            river_card = self.deck.pop()
-            self.community_cards.append(river_card)
-            self.round_stage = "River"
-            print(f"\n=== River ===\nCommunity Cards: {', '.join(map(str, self.community_cards))}")
-            time.sleep(1)
-            self.step()
+        # # Turn (4th community card)
+        # if not self.is_game_over():
+        #     turn_card = self.deck.pop()
+        #     self.community_cards.append(turn_card)
+        #     self.round_stage = "Turn"
+        #     print(f"\n=== Turn ===\nCommunity Cards: {', '.join(map(str, self.community_cards))}")
+        #     time.sleep(1)
+        #     self.step()
         
-        # Determine the winner and end the round
-        self._end_game()
+        # # River (5th community card)
+        # if not self.is_game_over():
+        #     river_card = self.deck.pop()
+        #     self.community_cards.append(river_card)
+        #     self.round_stage = "River"
+        #     print(f"\n=== River ===\nCommunity Cards: {', '.join(map(str, self.community_cards))}")
+        #     time.sleep(1)
+        #     self.step()
         
-        return {
-            "community_cards": self.community_cards,
-            "pot": self.pot
-        }
+        # # Determine the winner and end the round
+        # self._end_game()
 
     def step(self):
         """
@@ -182,6 +216,10 @@ class PokerEnv:
     
     def rotate(self):
         self.table.move_positions()
+    
+    def _on_quit(self):
+        self.running = False
+        self.next_scene = "main_menu"
             
     def _end_game(self):
         winner, hand_type = self._determine_winner()
@@ -194,11 +232,17 @@ class PokerEnv:
         """
         Deal 2 cards to each active player.
         """
+        player_hands = {agent.name: [] for agent in self.agents}
+
         for _ in range(2):
             curr = self.table.get_head()
             for _ in range(self.table.size()):
-                curr.agent.hand.append(self.deck.pop())
+                curr_hand = self.deck.pop()
+                curr.agent.hand.append(curr_hand)
+                player_hands[curr.agent.name].append(curr_hand)
                 curr = curr.next
+        
+        self.animations.deal_player_cards(player_hands)
 
     def _blinds(self):
         """
@@ -322,3 +366,87 @@ class PokerEnv:
         
         # Return the first winner and their hand type (e.g., "Flush", "Straight", etc.)
         return winners[0][0], winners[0][2][0]
+
+    def _init_frontend(self):
+        """
+        Initialize the animations for the game.
+        """
+
+        self.clock = pygame.time.Clock()
+        self.running = True
+        self.next_scene = "game"
+
+        self.background = pygame.image.load('assets/poker_table.jpg')
+        self.background = pygame.transform.scale(self.background, (1040, 720))
+        self.animations = PokerGameAnimations(self.screen)
+        for i, agent in enumerate(self.agents):
+            self.animations.add_player(agent.name, i)
+
+        button_styles = {
+            "Check": {
+                "normal": (33, 150, 243),   # #2196f3
+                "hover": (30, 135, 220),    # #1e87dc
+                "pressed": (25, 118, 210),
+            },
+            "Call": {
+                "normal": (76, 175, 80),    # #4caf50
+                "hover": (69, 160, 73),     # #45a049
+                "pressed": (56, 142, 60),
+            },
+            "Raise": {
+                "normal": (255, 152, 0),    # #ff9800
+                "hover": (245, 124, 0),     # #f57c00
+                "pressed": (230, 81, 0),
+            },
+            "Fold": {
+                "normal": (244, 67, 54),    # #f44336
+                "hover": (229, 57, 53),     # #e53935
+                "pressed": (211, 47, 47),
+            },
+            "Quit": {
+                "normal": (158, 158, 158),  # #9e9e9e
+                "hover": (117, 117, 117),   # #757575
+                "pressed": (97, 97, 97),
+            }
+        }
+
+        # Button dimensions and positioning
+        button_width = 120
+        button_height = 50
+        spacing = 20
+        
+        # Bottom row for action buttons
+        action_buttons = [
+            ("Check", print("Check")),
+            ("Call", print("Call")),
+            ("Raise", print("Raise")),
+            ("Fold", print("Fold")),
+            ("Quit", self._on_quit),
+        ]
+
+        self.buttons = []
+
+        # Create action buttons (bottom row)
+        total_width_action = (button_width * len(action_buttons)) + (spacing * (len(action_buttons) - 1))
+        start_x_action = (1040 - total_width_action) // 2
+        base_y_action = 720 - button_height - 50  # 50px from bottom
+        
+        current_x = start_x_action
+        for label, callback in action_buttons:
+            style = button_styles[label]
+            btn = Button(
+                text=label,
+                x=current_x,
+                y=base_y_action,
+                width=button_width,
+                height=button_height,
+                normal_color=style["normal"],
+                hover_color=style["hover"],
+                pressed_color=style["pressed"],
+                text_color=(255, 255, 255),
+                callback=callback,
+                border_radius=4,
+                font=pygame.font.SysFont(None, 32)
+            )
+            self.buttons.append(btn)
+            current_x += button_width + spacing
