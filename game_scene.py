@@ -25,7 +25,7 @@ def game(screen):
     agents = [RandomAgent("Player 1", rule_engine), 
               RandomAgent("Player 2", rule_engine), 
               RandomAgent("Player 3", rule_engine),
-              UserAgent("User", rule_engine)]
+              RandomAgent("User", rule_engine)]
     
     # initialize game environment
     env = PokerEnv(agents, 20, screen)

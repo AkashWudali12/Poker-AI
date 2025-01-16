@@ -45,9 +45,9 @@ class PokerGameAnimations:
         self.table.deal_community_cards(cards, stage)
         self.community_cards.extend(cards)
 
-    def animate_player_bet(self, player_id, amount):
+    def animate_player_bet(self, player_id, amount, current_bet):
         """Animate a chip moving from player position to pot"""
-        self.table.place_bet(player_id, amount)
+        self.table.place_bet(player_id, amount, current_bet)
 
     def reveal_player_cards(self, player_id):
         """Animate flipping a player's cards face up"""

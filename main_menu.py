@@ -50,6 +50,7 @@ def main_menu(screen):
         # If button was clicked, change scene
         if start_button.is_pressed:
             running = False
+            print("Starting game")
             next_scene = "game"
 
         # Draw everything

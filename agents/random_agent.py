@@ -1,5 +1,6 @@
 from .base_agent import BaseAgent
 import random
+import time
 
 class RandomAgent(BaseAgent):
     def __init__(self, name, reasoning_engine):
@@ -48,7 +49,7 @@ class RandomAgent(BaseAgent):
             legal_actions.append("fold")
 
             # If we have enough chips to call at least the required amount...
-            if agent_stack >= call_amount:
+            if agent_stack >= call_amount and current_bet_on_table > 0:
                 legal_actions.append("call")
                 
                 # If we still have chips beyond calling, we can raise.
@@ -102,5 +103,8 @@ class RandomAgent(BaseAgent):
         # Optionally store our chosen action in self.previous_action
         # ----------------------------------------------------------
         self.previous_action = (chosen_action, amount)
+
+
+        time.sleep(0.5)
 
         return (chosen_action, amount)

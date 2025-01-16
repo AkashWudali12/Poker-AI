@@ -87,7 +87,6 @@ class PokerEnv:
             self.reset()
         
         while self.running:
-            dt = self.clock.tick(60)
             event_list = pygame.event.get()
 
             for event in event_list:
@@ -106,65 +105,49 @@ class PokerEnv:
                         print("\n=== Handling Blinds ===")
                         print(f"Small blind pays {self.small_blind}")
                         print(f"Big blind pays {self.big_blind}")
+
+                        # Pre-Flop betting round
+                        print("\n=== Pre-Flop Betting Round ===")
+                        self.round_stage = "Pre-Flop"
+                        self.step()  
+
+                        # Flop (first 3 community cards)
+                        if not self.is_game_over():
+                            flop_cards = [self.deck.pop() for _ in range(3)]
+                            self.community_cards.extend(flop_cards)
+                            self.round_stage = "Flop"
+                            print(f"\n=== Flop ===\nCommunity Cards: {', '.join(map(str, self.community_cards))}")
+                            self.step()  
+
+                        # Turn (4th community card)
+                        if not self.is_game_over():
+                            turn_card = self.deck.pop()
+                            self.community_cards.append(turn_card)
+                            self.round_stage = "Turn"
+                            print(f"\n=== Turn ===\nCommunity Cards: {', '.join(map(str, self.community_cards))}")
+                            self.step()
+                        
+                        # River (5th community card)
+                        if not self.is_game_over():
+                            river_card = self.deck.pop()
+                            self.community_cards.append(river_card)
+                            self.round_stage = "River"
+                            print(f"\n=== River ===\nCommunity Cards: {', '.join(map(str, self.community_cards))}")
+                            self.step()   
+
+                        # Determine the winner and end the round
+                        self._end_game()    
         
-            # Update animations
-            self.animations.update(dt)
-
-            # Update button states
-            for btn in self.buttons:
-                btn.update(event_list)
-
-            # Draw everything
-            self.screen.blit(self.background, (0, 0))
-            
-            # Draw game animations
-            self.animations.draw(self.started)
-            
-            # Draw buttons
-            for btn in self.buttons:
-                btn.draw(self.screen)
-
-            pygame.display.flip()
+            self._update_ui_state(self.clock.tick(60), pygame.event.get())
 
         return self.next_scene
         
-        # # Pre-Flop betting round
-        # print("\n=== Pre-Flop Betting Round ===")
-        # self.round_stage = "Pre-Flop"
-        # self.step()
-        
-        # # Flop (first 3 community cards)
-        # if not self.is_game_over():
-        #     flop_cards = [self.deck.pop() for _ in range(3)]
-        #     self.community_cards.extend(flop_cards)
-        #     self.round_stage = "Flop"
-        #     print(f"\n=== Flop ===\nCommunity Cards: {', '.join(map(str, self.community_cards))}")
-        #     self.step()
-        
-        # # Turn (4th community card)
-        # if not self.is_game_over():
-        #     turn_card = self.deck.pop()
-        #     self.community_cards.append(turn_card)
-        #     self.round_stage = "Turn"
-        #     print(f"\n=== Turn ===\nCommunity Cards: {', '.join(map(str, self.community_cards))}")
-        #     self.step()
-        
-        # # River (5th community card)
-        # if not self.is_game_over():
-        #     river_card = self.deck.pop()
-        #     self.community_cards.append(river_card)
-        #     self.round_stage = "River"
-        #     print(f"\n=== River ===\nCommunity Cards: {', '.join(map(str, self.community_cards))}")
-        #     self.step()
-        
-        # # Determine the winner and end the round
-        # self._end_game()
 
     def step(self):
         """
         Progress one betting round. Query each agent in turn for an action,
         starting from self.action_index.
-        """
+        """ 
 
         curr_action_agent = self.table.get_action()
         settled_count, total_count = 0, 0 # number of players that settled on a bet, total players that went
@@ -240,6 +223,7 @@ class PokerEnv:
                 curr = curr.next
         
         self.animations.deal_player_cards(player_hands)
+        self._update_ui_state(self.clock.tick(60), pygame.event.get())
 
     def _blinds(self):
         """
@@ -252,7 +236,7 @@ class PokerEnv:
         small_blind_agent.agent.current_bet += self.small_blind
         small_blind_agent.agent.net_profit -= self.small_blind
         self.pot += self.small_blind
-        self.animations.animate_player_bet(small_blind_agent.agent.name, self.small_blind)  # Animate chip movement
+        self.animations.animate_player_bet(small_blind_agent.agent.name, self.small_blind, small_blind_agent.agent.current_bet)  # Animate chip movement
 
         # Big Blind
         big_blind_agent = self.table.get_big_blind()
@@ -261,8 +245,10 @@ class PokerEnv:
         big_blind_agent.agent.current_bet += self.big_blind
         big_blind_agent.agent.net_profit -= self.big_blind
         self.pot += self.big_blind
-        self.animations.animate_player_bet(big_blind_agent.agent.name, self.big_blind)  # Animate chip movement
+        self.animations.animate_player_bet(big_blind_agent.agent.name, self.big_blind, big_blind_agent.agent.current_bet)  # Animate chip movement
         self.current_bet = self.big_blind
+
+        self._update_ui_state(self.clock.tick(60), pygame.event.get())
 
     def _apply_action(self, agent, action, amount):
         """
@@ -272,6 +258,7 @@ class PokerEnv:
             print(f"\nAgent {agent.name} folds")
             agent.folded = True
             self.total_players -= 1
+            
 
         elif action == "call":
             print(f"\nAgent {agent.name} calls ${amount}")
@@ -279,7 +266,8 @@ class PokerEnv:
             agent.net_profit -= amount
             agent.current_bet += amount
             self.pot += amount
-            self.animations.animate_player_bet(agent.name, amount)  # Animate chip movement
+            self.animations.animate_player_bet(agent.name, amount, agent.current_bet)  # Animate chip movement
+            
 
         elif action == "raise":
             print(f"\nAgent {agent.name} raises by ${amount}")
@@ -288,8 +276,10 @@ class PokerEnv:
             self.current_bet = (amount + agent.current_bet)
             agent.current_bet += amount
             self.pot += amount
-            self.animations.animate_player_bet(agent.name, amount)  # Animate chip movement
-
+            self.animations.animate_player_bet(agent.name, amount, agent.current_bet)  # Animate chip movement
+        
+        self._update_ui_state(self.clock.tick(60), pygame.event.get())
+            
     def is_game_over(self):
         """
         The game is over if only one player remains or if we've revealed all 5 community cards.
@@ -427,7 +417,7 @@ class PokerEnv:
         # Create action buttons (bottom row)
         total_width_action = (button_width * len(action_buttons)) + (spacing * (len(action_buttons) - 1))
         start_x_action = (1040 - total_width_action) // 2
-        base_y_action = 720 - button_height - 50  # 50px from bottom
+        base_y_action = 900 - button_height - 50  # Changed to 10px from bottom
         
         current_x = start_x_action
         for label, callback in action_buttons:
@@ -448,3 +438,26 @@ class PokerEnv:
             )
             self.buttons.append(btn)
             current_x += button_width + spacing
+        
+    def _update_ui_state(self, dt, event_list):
+        """
+        Helper method to update and draw all UI elements
+        """
+        # Update animations
+        self.animations.update(dt)
+
+        # Update button states
+        for btn in self.buttons:
+            btn.update(event_list)
+
+        # Draw everything
+        self.screen.blit(self.background, (0, 0))
+        
+        # Draw game animations
+        self.animations.draw(self.started)
+        
+        # Draw buttons
+        for btn in self.buttons:
+            btn.draw(self.screen)
+
+        pygame.display.flip()

@@ -32,7 +32,8 @@ class PokerTableAnimations:
                 'seat': seat_num,
                 'position': SEAT_POSITIONS[seat_num],
                 'chips': [],
-                'cards': []
+                'cards': [],
+                'current_bet': 0
             }
 
     def deal_cards(self, player_hands):
@@ -108,13 +109,14 @@ class PokerTableAnimations:
             card.start_deal(self.deck_pos, target_pos)
             self.cards[f"community_card_{len(self.cards)}"] = card
 
-    def place_bet(self, player_id, amount):
+    def place_bet(self, player_id, amount, current_bet):
         """Animate moving a chip to the pot"""
         if player_id in self.players:
             chip = Chip(amount, self.chip_image, self.players[player_id]['position'])
             chip.move_to(POT_POSITION)
             self.chips[f"{player_id}_chip_{len(self.chips)}"] = chip
             self.pot += amount
+            self.players[player_id]['current_bet'] = current_bet
 
     def move_pot_to_player(self, winner_id):
         """Animate moving pot chips to winner"""
@@ -160,6 +162,15 @@ class PokerTableAnimations:
             font = pygame.font.Font(None, 36)
             pot_text = font.render(f"Press Space to Start", True, WHITE)
             screen.blit(pot_text, (POT_POSITION[0] - pot_text.get_width()//2, POT_POSITION[1] - 30)) 
+        
+        # Draw player bet amounts
+        font = pygame.font.Font(None, 28)  # Smaller font for bet amounts
+        for player_data in self.players.values():
+            if 'current_bet' in player_data and player_data['current_bet'] > 0:
+                bet_text = font.render(f"${player_data['current_bet']}", True, WHITE)
+                # Position the text slightly above the player's position
+                text_pos = (player_data['position'][0], player_data['position'][1] - 30)
+                screen.blit(bet_text, text_pos)
     
     def update_pot(self, amount):
         """Update the pot amount displayed on screen"""
