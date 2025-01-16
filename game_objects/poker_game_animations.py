@@ -69,3 +69,7 @@ class PokerGameAnimations:
     def draw(self):
         """Draw the current state of the game"""
         self.table.draw(self.screen) 
+    
+    def update_pot(self, amount):
+        """Update the pot amount in the animations"""
+        self.table.update_pot(amount) 

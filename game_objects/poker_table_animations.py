@@ -155,3 +155,7 @@ class PokerTableAnimations:
         font = pygame.font.Font(None, 36)
         pot_text = font.render(f"Pot: ${self.pot}", True, WHITE)
         screen.blit(pot_text, (POT_POSITION[0] - pot_text.get_width()//2, POT_POSITION[1] - 30)) 
+    
+    def update_pot(self, amount):
+        """Update the pot amount displayed on screen"""
+        self.pot = amount 

@@ -73,6 +73,9 @@ class PokerEnv:
 
         self.round_stage = "Not Started"
 
+        # Reset pot and update display
+        self.pot = 0
+        self.animations.update_pot(self.pot)  # Update pot display to zero
 
     def play(self):
         """
@@ -256,6 +259,7 @@ class PokerEnv:
         small_blind_agent.agent.current_bet += self.small_blind
         small_blind_agent.agent.net_profit -= self.small_blind
         self.pot += self.small_blind
+        self.animations.animate_player_bet(small_blind_agent.agent.name, self.small_blind)  # Animate chip movement
 
         # Big Blind
         big_blind_agent = self.table.get_big_blind()
@@ -265,6 +269,7 @@ class PokerEnv:
         big_blind_agent.agent.current_bet += self.big_blind
         big_blind_agent.agent.net_profit -= self.big_blind
         self.pot += self.big_blind
+        self.animations.animate_player_bet(big_blind_agent.agent.name, self.big_blind)  # Animate chip movement
         self.current_bet = self.big_blind
 
     def _apply_action(self, agent, action, amount):
@@ -283,10 +288,10 @@ class PokerEnv:
             agent.net_profit -= amount
             agent.current_bet += amount
             self.pot += amount
+            self.animations.animate_player_bet(agent.name, amount)  # Animate chip movement
             time.sleep(0.5)
 
         elif action == "raise":
-            # If the raise amount is within the agent's stack
             print(f"\nAgent {agent.name} raises by ${amount}")
             time.sleep(0.5)
             agent.stack -= amount
@@ -294,6 +299,7 @@ class PokerEnv:
             self.current_bet = (amount + agent.current_bet)
             agent.current_bet += amount
             self.pot += amount
+            self.animations.animate_player_bet(agent.name, amount)  # Animate chip movement
 
     def is_game_over(self):
         """
@@ -320,6 +326,8 @@ class PokerEnv:
             winner = [agent for agent in self.agents if not agent.folded][0]
             winner.stack += self.pot
             winner.net_profit += self.pot
+            self.pot = 0
+            self.animations.update_pot(self.pot)  # Update pot display to zero
             return winner, "Last Man Standing"
         
         # Otherwise, compare the best 5-card hands for each active player
@@ -363,6 +371,7 @@ class PokerEnv:
             winner_player.net_profit += split_amount
         
         self.pot = 0
+        self.animations.update_pot(self.pot)  # Update pot display to zero
         
         # Return the first winner and their hand type (e.g., "Flush", "Straight", etc.)
         return winners[0][0], winners[0][2][0]
