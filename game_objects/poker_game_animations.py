@@ -66,9 +66,9 @@ class PokerGameAnimations:
             self.animation_in_progress = False
             self.state = GameState.PRE_FLOP
 
-    def draw(self):
+    def draw(self, started: bool):
         """Draw the current state of the game"""
-        self.table.draw(self.screen) 
+        self.table.draw(self.screen, started) 
     
     def update_pot(self, amount):
         """Update the pot amount in the animations"""

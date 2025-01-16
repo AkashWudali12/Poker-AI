@@ -12,9 +12,6 @@ def game(screen):
     """
     A poker game scene optimized for 1040x720 display with game control buttons.
     """
-    clock = pygame.time.Clock()
-    running = True
-    next_scene = "game"
 
     # initialize game agents
 

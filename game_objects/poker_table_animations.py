@@ -141,7 +141,7 @@ class PokerTableAnimations:
         for chip in self.chips.values():
             chip.update(dt)
 
-    def draw(self, screen):
+    def draw(self, screen, started: bool):
         """Draw all visual elements on the provided screen"""
         # Draw chips
         for chip in self.chips.values():
@@ -152,9 +152,14 @@ class PokerTableAnimations:
             card.draw(screen)
         
         # Draw pot amount
-        font = pygame.font.Font(None, 36)
-        pot_text = font.render(f"Pot: ${self.pot}", True, WHITE)
-        screen.blit(pot_text, (POT_POSITION[0] - pot_text.get_width()//2, POT_POSITION[1] - 30)) 
+        if started:
+            font = pygame.font.Font(None, 36)
+            pot_text = font.render(f"Pot: ${self.pot}", True, WHITE)
+            screen.blit(pot_text, (POT_POSITION[0] - pot_text.get_width()//2, POT_POSITION[1] - 30)) 
+        else:
+            font = pygame.font.Font(None, 36)
+            pot_text = font.render(f"Press Space to Start", True, WHITE)
+            screen.blit(pot_text, (POT_POSITION[0] - pot_text.get_width()//2, POT_POSITION[1] - 30)) 
     
     def update_pot(self, amount):
         """Update the pot amount displayed on screen"""

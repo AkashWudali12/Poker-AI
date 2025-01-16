@@ -85,8 +85,6 @@ class PokerEnv:
         # If we've already started a game, reset for a new round
         if self.started:
             self.reset()
-        else:
-            self.started = True
         
         while self.running:
             dt = self.clock.tick(60)
@@ -99,16 +97,15 @@ class PokerEnv:
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_SPACE:
                         # Start a new round when space is pressed
+                        self.started = True
                         self._deal_hand()  
                         print("\n=== Starting New Poker Game ===")
                         print("Initial hands dealt to players")
-                        time.sleep(1)
 
                         self._blinds()
                         print("\n=== Handling Blinds ===")
                         print(f"Small blind pays {self.small_blind}")
                         print(f"Big blind pays {self.big_blind}")
-                        time.sleep(1)
         
             # Update animations
             self.animations.update(dt)
@@ -121,7 +118,7 @@ class PokerEnv:
             self.screen.blit(self.background, (0, 0))
             
             # Draw game animations
-            self.animations.draw()
+            self.animations.draw(self.started)
             
             # Draw buttons
             for btn in self.buttons:
@@ -142,7 +139,6 @@ class PokerEnv:
         #     self.community_cards.extend(flop_cards)
         #     self.round_stage = "Flop"
         #     print(f"\n=== Flop ===\nCommunity Cards: {', '.join(map(str, self.community_cards))}")
-        #     time.sleep(1)
         #     self.step()
         
         # # Turn (4th community card)
@@ -151,7 +147,6 @@ class PokerEnv:
         #     self.community_cards.append(turn_card)
         #     self.round_stage = "Turn"
         #     print(f"\n=== Turn ===\nCommunity Cards: {', '.join(map(str, self.community_cards))}")
-        #     time.sleep(1)
         #     self.step()
         
         # # River (5th community card)
@@ -160,7 +155,6 @@ class PokerEnv:
         #     self.community_cards.append(river_card)
         #     self.round_stage = "River"
         #     print(f"\n=== River ===\nCommunity Cards: {', '.join(map(str, self.community_cards))}")
-        #     time.sleep(1)
         #     self.step()
         
         # # Determine the winner and end the round
@@ -254,7 +248,6 @@ class PokerEnv:
         # Small Blind
         small_blind_agent = self.table.get_small_blind()
         print(f"\nAgent {small_blind_agent.agent.name} posts small blind (${self.small_blind})")
-        time.sleep(0.5)
         small_blind_agent.agent.stack -= self.small_blind
         small_blind_agent.agent.current_bet += self.small_blind
         small_blind_agent.agent.net_profit -= self.small_blind
@@ -264,7 +257,6 @@ class PokerEnv:
         # Big Blind
         big_blind_agent = self.table.get_big_blind()
         print(f"Agent {big_blind_agent.agent.name} posts big blind (${self.big_blind})")
-        time.sleep(0.5)
         big_blind_agent.agent.stack -= self.big_blind
         big_blind_agent.agent.current_bet += self.big_blind
         big_blind_agent.agent.net_profit -= self.big_blind
@@ -278,7 +270,6 @@ class PokerEnv:
         """
         if action == "fold":
             print(f"\nAgent {agent.name} folds")
-            time.sleep(0.5)
             agent.folded = True
             self.total_players -= 1
 
@@ -289,11 +280,9 @@ class PokerEnv:
             agent.current_bet += amount
             self.pot += amount
             self.animations.animate_player_bet(agent.name, amount)  # Animate chip movement
-            time.sleep(0.5)
 
         elif action == "raise":
             print(f"\nAgent {agent.name} raises by ${amount}")
-            time.sleep(0.5)
             agent.stack -= amount
             agent.net_profit -= amount
             self.current_bet = (amount + agent.current_bet)
