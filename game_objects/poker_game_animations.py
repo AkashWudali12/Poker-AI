@@ -22,9 +22,9 @@ class PokerGameAnimations:
         self.animation_in_progress = False
         self.community_cards = []
         
-    def add_player(self, player_id, seat_num):
+    def add_player(self, player_id, seat_num, name, folded):
         """Add a player visual representation at the specified seat"""
-        self.table.add_player(player_id, seat_num)
+        self.table.add_player(player_id, seat_num, name, folded)
 
     def deal_player_cards(self, player_hands):
         """
@@ -73,3 +73,7 @@ class PokerGameAnimations:
     def update_pot(self, amount):
         """Update the pot amount in the animations"""
         self.table.update_pot(amount) 
+    
+    def fold_player(self, player_id):
+        """Animate folding a player's cards"""
+        self.table.fold_player(player_id)

@@ -1,6 +1,5 @@
 from .base_agent import BaseAgent
 import random
-import time
 
 class RandomAgent(BaseAgent):
     def __init__(self, name, reasoning_engine):
@@ -10,101 +9,123 @@ class RandomAgent(BaseAgent):
         """
         Make a decision based on current betting state in a No-Limit Texas Hold'em game.
         Ensures the returned action is always legal (fold, check, call, or raise),
-        given the current bet, how much we've already put in (agent_current_bet),
-        and how many chips we have left (self.stack).
+        given the current bet (game_state["current_bet"]), how much we've already put in
+        (self.current_bet), and how many chips we have left (self.stack).
         """
 
         previous_table_action = game_state["previous_action"]     # e.g. ("raise", 20)
         current_bet_on_table  = game_state["current_bet"]         # e.g. 20 chips
         agent_stack           = self.stack                        # Our remaining chips
-        agent_current_bet     = self.current_bet                  # How much we've put in this round
+        agent_current_bet     = self.current_bet                  # How much we've already put in this round
 
-        # How much more we need to put in to *match* the highest current bet
+        # How much more we need to match the highest current bet
         call_amount = max(0, current_bet_on_table - agent_current_bet)
 
         legal_actions = []
-        amount = 0  # Default bet size (updated below if needed)
 
-        # ----------------------------------------------------------
-        # 1. If we've already matched the table's current bet:
-        #    -> We have no outstanding chips to call, so we can check or raise.
-        # ----------------------------------------------------------
+        # ---------------------------
+        # CASE 1: No outstanding bet
+        # ---------------------------
         if call_amount == 0:
-            # 'check' is a valid action if there's nothing to call.
+            # There's nothing to call, so we can CHECK or RAISE
             legal_actions.append("check")
 
-            # 'raise' is allowed if we have chips left to raise.
+            # RAISE is legal only if we have some chips left
             if agent_stack > 0:
                 legal_actions.append("raise")
-
-            # (Optional) If you want to allow folding with no bet, add "fold":
+            
+            # Folding here is legal in most rulesets, but almost never done
+            # If you want to forbid folding with no bet, do nothing
+            # If you'd like to allow it, uncomment below:
             # legal_actions.append("fold")
 
-        # ----------------------------------------------------------
-        # 2. If we *have not* matched the table's current bet:
-        #    -> We can fold, call (possibly all-in), or raise.
-        # ----------------------------------------------------------
+        # ----------------------------------
+        # CASE 2: There's an outstanding bet
+        # ----------------------------------
         else:
-            # 'fold' is always available when facing a bet.
+            # 1) FOLD is always an option if facing a bet
             legal_actions.append("fold")
 
-            # If we have enough chips to call at least the required amount...
-            if agent_stack >= call_amount and current_bet_on_table > 0:
+            # 2) CALL (or all-in if we don't have enough)
+            if agent_stack >= call_amount:
+                # We can fully call
                 legal_actions.append("call")
-                
-                # If we still have chips beyond calling, we can raise.
+                # 3) RAISE is possible only if we still have chips beyond the call_amount
                 if agent_stack > call_amount:
                     legal_actions.append("raise")
             else:
-                # If we don't have enough chips to fully call, we can only call all-in or fold.
-                # (In typical poker, that's effectively "call" for your remaining stack.)
-                legal_actions.append("call")  # This is effectively an all-in call.
+                # We don't have enough to fully call, so this is effectively an all-in call
+                legal_actions.append("call")
 
         # ----------------------------------------------------------
-        # Choose a random legal action among the computed set.
+        # Choose a random legal action among the computed set
         # ----------------------------------------------------------
         chosen_action = random.choice(legal_actions)
+        amount = 0  # Default
 
         # ----------------------------------------------------------
-        # Determine the bet or raise amount according to the chosen action.
+        # Determine the final bet/raise amount based on the chosen action
         # ----------------------------------------------------------
         if chosen_action == "check":
-            amount = 0  # No chips needed to check
+            amount = 0  # Checking requires no additional chips
 
         elif chosen_action == "fold":
-            amount = 0  # No chips added, agent is folding
+            amount = 0  # Folding doesn't add chips
 
         elif chosen_action == "call":
-            # If agent can't fully match the bet, treat it as an all-in call.
+            # If we can't fully match the bet, treat it as an all-in call
             amount = min(call_amount, agent_stack)
+            print(f"[{self.name}] CALLS {amount}")
 
         elif chosen_action == "raise":
-            # Minimal approach for No-Limit:
-            #    * If call_amount > 0, we must put in at least `call_amount + previous_bet_increment`.
-            #    * But for simplicity, let's define a min_raise as current_bet_on_table*2 if there's a bet,
-            #      or something small (like 2) if there's no bet.
-            if current_bet_on_table == 0:
+            # ----------------------------------------
+            # Minimal no-limit logic for a raise:
+            # - If there's no existing bet on the table (call_amount == 0),
+            #   we define a min first bet (e.g. 2).
+            # - If there's an existing bet (call_amount > 0),
+            #   the min raise is typically "current_bet_on_table + (some increment)".
+            #   For simplicity, let's do a "double the current bet" approach.
+            # ----------------------------------------
+            if call_amount == 0:
+                # No bet on the table, define a minimal bet
                 min_raise = 2
             else:
-                # For a "proper" raise, we usually need at least *previous raise size* more than call.
-                # As a very simplified rule, let's say double the current bet on the table:
+                # Minimal raise: at least double the current bet on the table
                 min_raise = current_bet_on_table * 2
 
-            max_raise = agent_stack  # We can always go all-in
+            max_raise = agent_stack  # We can go up to all-in
 
+            # Ensure our min_raise is at least enough to cover the call
+            # i.e., min total contribution must be >= current_bet_on_table + the increment
+            if min_raise < (call_amount * 2):
+                # A safer (though simplified) approach is: min_raise >= call_amount + (current_bet_on_table - agent_current_bet)
+                # But let's keep it consistent with "double the bet" logic
+                min_raise = call_amount * 2
+
+            # If we can't meet the min_raise, we must fall back to either calling or folding
+            # But in no-limit, you can always jam all-in, which might be less than the typical 'min raise' if your stack is short.
+            # So we handle that below:
             if min_raise <= max_raise:
+                # We can pick a random raise between min_raise and max_raise
                 amount = random.randint(min_raise, max_raise)
+                print(f"[{self.name}] RAISES to {amount}")
             else:
-                # If we can't meet the min raise, just call all-in
-                chosen_action = "call"
-                amount = min(call_amount, agent_stack)
+                # We can't meet the min raise fully, so let's either go all-in (call_amount + partial) or just call.
+                # Typically, you'd do an all-in for your entire stack. Let's do that.
+                if agent_stack > call_amount:
+                    amount = agent_stack  # all-in
+                    print(f"[{self.name}] ALL-IN RAISE for {amount}")
+                else:
+                    # We can't raise at all, so revert to call or fold
+                    if agent_stack >= call_amount:
+                        chosen_action = "call"
+                        amount = call_amount
+                        print(f"[{self.name}] (Insufficient for min raise) CALLS {amount}")
+                    else:
+                        chosen_action = "fold"
+                        amount = 0
+                        print(f"[{self.name}] FOLDS (cannot meet raise requirement)")
 
-        # ----------------------------------------------------------
-        # Optionally store our chosen action in self.previous_action
-        # ----------------------------------------------------------
+        # Store the chosen action & amount
         self.previous_action = (chosen_action, amount)
-
-
-        time.sleep(0.5)
-
         return (chosen_action, amount)

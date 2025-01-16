@@ -49,13 +49,15 @@ class PokerEnv:
         """
         Reset or start a new round of poker. Shuffle deck, deal cards, reset pots, etc.
         """
+        # Reset UI first
+        self._update_ui_state(self.clock.tick(60), pygame.event.get())
 
         # reset agent specific state
         curr = self.table.get_head()
         for _ in range(self.table.size()):
             # If an agent busted (stack <= 0), reset them to buy_in
             if curr.agent.stack <= 0:
-                self.buy_in
+                curr.agent.stack = self.buy_in
             curr.agent.hand = []
             curr.agent.folded = False
             curr.agent.current_bet = 0
@@ -76,16 +78,15 @@ class PokerEnv:
         # Reset pot and update display
         self.pot = 0
         self.animations.update_pot(self.pot)  # Update pot display to zero
+        
+        self._update_ui_state(self.clock.tick(60), pygame.event.get())
 
     def play(self):
         """
         Play a complete poker game from start to finish.
         Deals hands, reveals community cards, and manages betting rounds.
         """
-        # If we've already started a game, reset for a new round
-        if self.started:
-            self.reset()
-        
+    
         while self.running:
             event_list = pygame.event.get()
 
@@ -93,50 +94,53 @@ class PokerEnv:
                 if event.type == pygame.QUIT:
                     self.running = False
                     self.next_scene = "quit"
-                elif event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_SPACE:
-                        # Start a new round when space is pressed
-                        self.started = True
-                        self._deal_hand()  
-                        print("\n=== Starting New Poker Game ===")
-                        print("Initial hands dealt to players")
+            
+            # If we've already started a game, reset for a new round
+            if self.started:
+                self.reset()
+            else:
+                self.started = True
+       
+            self._deal_hand()  
+            print("\n=== Starting New Poker Game ===")
+            print("Initial hands dealt to players")
 
-                        self._blinds()
-                        print("\n=== Handling Blinds ===")
-                        print(f"Small blind pays {self.small_blind}")
-                        print(f"Big blind pays {self.big_blind}")
+            self._blinds()
+            print("\n=== Handling Blinds ===")
+            print(f"Small blind pays {self.small_blind}")
+            print(f"Big blind pays {self.big_blind}")
 
-                        # Pre-Flop betting round
-                        print("\n=== Pre-Flop Betting Round ===")
-                        self.round_stage = "Pre-Flop"
-                        self.step()  
+            # Pre-Flop betting round
+            print("\n=== Pre-Flop Betting Round ===")
+            self.round_stage = "Pre-Flop"
+            self.step()  
 
-                        # Flop (first 3 community cards)
-                        if not self.is_game_over():
-                            flop_cards = [self.deck.pop() for _ in range(3)]
-                            self.community_cards.extend(flop_cards)
-                            self.round_stage = "Flop"
-                            print(f"\n=== Flop ===\nCommunity Cards: {', '.join(map(str, self.community_cards))}")
-                            self.step()  
+            # Flop (first 3 community cards)
+            if not self.is_game_over():
+                flop_cards = [self.deck.pop() for _ in range(3)]
+                self.community_cards.extend(flop_cards)
+                self.round_stage = "Flop"
+                print(f"\n=== Flop ===\nCommunity Cards: {', '.join(map(str, self.community_cards))}")
+                self.step()  
 
-                        # Turn (4th community card)
-                        if not self.is_game_over():
-                            turn_card = self.deck.pop()
-                            self.community_cards.append(turn_card)
-                            self.round_stage = "Turn"
-                            print(f"\n=== Turn ===\nCommunity Cards: {', '.join(map(str, self.community_cards))}")
-                            self.step()
-                        
-                        # River (5th community card)
-                        if not self.is_game_over():
-                            river_card = self.deck.pop()
-                            self.community_cards.append(river_card)
-                            self.round_stage = "River"
-                            print(f"\n=== River ===\nCommunity Cards: {', '.join(map(str, self.community_cards))}")
-                            self.step()   
+            # Turn (4th community card)
+            if not self.is_game_over():
+                turn_card = self.deck.pop()
+                self.community_cards.append(turn_card)
+                self.round_stage = "Turn"
+                print(f"\n=== Turn ===\nCommunity Cards: {', '.join(map(str, self.community_cards))}")
+                self.step()
+            
+            # River (5th community card)
+            if not self.is_game_over():
+                river_card = self.deck.pop()
+                self.community_cards.append(river_card)
+                self.round_stage = "River"
+                print(f"\n=== River ===\nCommunity Cards: {', '.join(map(str, self.community_cards))}")
+                self.step()   
 
-                        # Determine the winner and end the round
-                        self._end_game()    
+            # Determine the winner and end the round
+            self._end_game()    
         
             self._update_ui_state(self.clock.tick(60), pygame.event.get())
 
@@ -150,14 +154,10 @@ class PokerEnv:
         """ 
 
         curr_action_agent = self.table.get_action()
-        settled_count, total_count = 0, 0 # number of players that settled on a bet, total players that went
+        round_status_checker, cnt = set(), 0
         previous_action = None
         while True:
             if not curr_action_agent.agent.folded:
-                print("Current Agent:", curr_action_agent.agent.name)
-                print()
-                print("Current Bet On Table:", self.current_bet)
-                print()
                 if self.total_players == 1:
                     break
 
@@ -175,22 +175,17 @@ class PokerEnv:
                 action, amount = curr_action_agent.agent.decide_action(agent_state)
                 self._apply_action(curr_action_agent.agent, action, amount)
 
+                round_status_checker.add(action)
+
                 previous_action = (action, amount)
-
-                if action == "check" or action == "call":
-                    settled_count += 1            
-                total_count += 1
-
-                if total_count == self.total_players:
-                    if settled_count == self.total_players:
-                        print("\n=== All players have settled on a bet. ===")
-                        self.current_bet = 0
-                        for agent in self.agents:
-                            agent.current_bet = 0
-                        break
-                    else:
-                        settled_count = 0
-                        total_count = 0
+            
+            cnt += 1
+            if cnt == len(self.agents):
+                if len(round_status_checker) == 1 and ("check" in round_status_checker or "call" in round_status_checker):
+                    break
+                else:
+                    round_status_checker = set()
+                    cnt = 0
 
             curr_action_agent = curr_action_agent.next
     
@@ -258,7 +253,7 @@ class PokerEnv:
             print(f"\nAgent {agent.name} folds")
             agent.folded = True
             self.total_players -= 1
-            
+            self.animations.fold_player(agent.name)
 
         elif action == "call":
             print(f"\nAgent {agent.name} calls ${amount}")
@@ -277,6 +272,9 @@ class PokerEnv:
             agent.current_bet += amount
             self.pot += amount
             self.animations.animate_player_bet(agent.name, amount, agent.current_bet)  # Animate chip movement
+        
+        elif action == "check":
+            print(f"\nAgent {agent.name} checks")
         
         self._update_ui_state(self.clock.tick(60), pygame.event.get())
             
@@ -368,7 +366,7 @@ class PokerEnv:
         self.background = pygame.transform.scale(self.background, (1040, 720))
         self.animations = PokerGameAnimations(self.screen)
         for i, agent in enumerate(self.agents):
-            self.animations.add_player(agent.name, i)
+            self.animations.add_player(agent.name, i, agent.name, False)
 
         button_styles = {
             "Check": {

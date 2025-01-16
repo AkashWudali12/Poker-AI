@@ -69,9 +69,16 @@ class Card:
             if self.flip_progress >= 1.0:
                 self.is_flipping = False
                 self.current_image = self.front_image
-
-    def draw(self, screen):
-        screen.blit(self.current_image, self.current_pos)
+    
+    def draw(self, screen, alpha=255):
+        """Draw the card with optional transparency"""
+        if alpha < 255:
+            # Create a copy of the image with transparency
+            temp_surface = self.current_image.copy()
+            temp_surface.set_alpha(alpha)
+            screen.blit(temp_surface, self.current_pos)
+        else:
+            screen.blit(self.current_image, self.current_pos)
 
     @staticmethod
     def _ease_out_quad(t):

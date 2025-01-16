@@ -25,7 +25,7 @@ class PokerTableAnimations:
         # Return dictionary of card images keyed by value+suit
         pass
 
-    def add_player(self, player_id, seat_num):
+    def add_player(self, player_id, seat_num, name, folded):
         """Add visual representation of a player"""
         if seat_num < len(SEAT_POSITIONS):
             self.players[player_id] = {
@@ -33,7 +33,9 @@ class PokerTableAnimations:
                 'position': SEAT_POSITIONS[seat_num],
                 'chips': [],
                 'cards': [],
-                'current_bet': 0
+                'current_bet': 0,
+                'name': name,
+                'folded': folded
             }
 
     def deal_cards(self, player_hands):
@@ -129,7 +131,14 @@ class PokerTableAnimations:
         for card_id, card in self.cards.items():
             if card_id.startswith(f"{player_id}_card_"):
                 card.start_flip()
-
+    
+    def fold_player(self, player_id):
+        """Animate folding a player's cards"""
+        for card_id, card in self.cards.items():
+            if card_id.startswith(f"{player_id}_card_"):
+                card.start_flip()
+        self.players[player_id]['folded'] = True
+        
     def update(self, dt):
         """Update all animations"""
         any_card_moving = False
@@ -149,9 +158,14 @@ class PokerTableAnimations:
         for chip in self.chips.values():
             chip.draw(screen)
         
-        # Draw cards
-        for card in self.cards.values():
-            card.draw(screen)
+       # Draw cards with folded status
+        for card_id, card in self.cards.items():
+            player_id = card_id.split('_card_')[0]
+            if player_id in self.players and self.players[player_id]['folded']:
+                # Create a dark overlay for folded players' cards
+                card.draw(screen, alpha=128)  # 128 is half transparency
+            else:
+                card.draw(screen)
         
         # Draw pot amount
         if started:
@@ -163,12 +177,22 @@ class PokerTableAnimations:
             pot_text = font.render(f"Press Space to Start", True, WHITE)
             screen.blit(pot_text, (POT_POSITION[0] - pot_text.get_width()//2, POT_POSITION[1] - 30)) 
         
-        # Draw player bet amounts
-        font = pygame.font.Font(None, 28)  # Smaller font for bet amounts
-        for player_data in self.players.values():
+        # Draw player names and bet amounts
+        font = pygame.font.Font(None, 28)
+        for player_id, player_data in self.players.items():
+            # Determine text color based on fold status
+            text_color = WHITE
+            if player_data['folded']:
+                text_color = tuple(c // 2 for c in WHITE)  # Darker version of white
+            
+            # Draw player name
+            name_text = font.render(player_data['name'], True, text_color)
+            name_pos = (player_data['position'][0], player_data['position'][1] - 50)
+            screen.blit(name_text, name_pos)
+            
+            # Draw bet amount if exists
             if 'current_bet' in player_data and player_data['current_bet'] > 0:
-                bet_text = font.render(f"${player_data['current_bet']}", True, WHITE)
-                # Position the text slightly above the player's position
+                bet_text = font.render(f"${player_data['current_bet']}", True, text_color)
                 text_pos = (player_data['position'][0], player_data['position'][1] - 30)
                 screen.blit(bet_text, text_pos)
     
