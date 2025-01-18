@@ -1,4 +1,3 @@
-import pygame
 from components.button import Button
 from game_objects.poker_game_animations import PokerGameAnimations, GameState
 from agents.passive_agent import PassiveAgent
@@ -7,6 +6,7 @@ from agents.random_agent import RandomAgent
 from agents.user_agent import UserAgent
 from reasoning.rule_based import RuleBasedReasoning
 from environment.poker_game import PokerEnv
+import time
 
 def game(screen):
     """

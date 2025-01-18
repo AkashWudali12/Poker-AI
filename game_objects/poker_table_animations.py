@@ -68,7 +68,6 @@ class PokerTableAnimations:
         Different positioning based on stage (flop, turn, river)
         """
         if stage == "flop":
-            print("Dealing flop cards")
             # Position flop cards more to the right
             start_x = SCREEN_WIDTH // 2  # Start from center
             for i, (value, suit) in enumerate(cards):
@@ -84,7 +83,6 @@ class PokerTableAnimations:
                 self.cards[f"community_card_{len(self.cards)}"] = card
         
         elif stage == "turn":
-            print("Dealing turn card")
             # Position turn card to the left of the flop
             card = Card(
                 cards[0][0],  # value
@@ -98,7 +96,6 @@ class PokerTableAnimations:
             self.cards[f"community_card_{len(self.cards)}"] = card
             
         elif stage == "river":
-            print("Dealing river card")
             # Position river card to the left of the turn
             card = Card(
                 cards[0][0],  # value
@@ -199,3 +196,13 @@ class PokerTableAnimations:
     def update_pot(self, amount):
         """Update the pot amount displayed on screen"""
         self.pot = amount 
+
+    def reset_board_state(self):
+        """Reset all visual elements on the board"""
+        self.pot = 0
+        self.cards.clear()
+        self.chips.clear()
+        # Reset all player bets
+        for player in self.players.values():
+            player['current_bet'] = 0
+            player['folded'] = False 

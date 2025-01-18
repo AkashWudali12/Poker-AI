@@ -1,5 +1,6 @@
 from .base_agent import BaseAgent
 import random
+import time
 
 class RandomAgent(BaseAgent):
     def __init__(self, name, reasoning_engine):
@@ -75,7 +76,6 @@ class RandomAgent(BaseAgent):
         elif chosen_action == "call":
             # If we can't fully match the bet, treat it as an all-in call
             amount = min(call_amount, agent_stack)
-            print(f"[{self.name}] CALLS {amount}")
 
         elif chosen_action == "raise":
             # ----------------------------------------
@@ -108,24 +108,23 @@ class RandomAgent(BaseAgent):
             if min_raise <= max_raise:
                 # We can pick a random raise between min_raise and max_raise
                 amount = random.randint(min_raise, max_raise)
-                print(f"[{self.name}] RAISES to {amount}")
             else:
                 # We can't meet the min raise fully, so let's either go all-in (call_amount + partial) or just call.
                 # Typically, you'd do an all-in for your entire stack. Let's do that.
                 if agent_stack > call_amount:
                     amount = agent_stack  # all-in
-                    print(f"[{self.name}] ALL-IN RAISE for {amount}")
                 else:
                     # We can't raise at all, so revert to call or fold
                     if agent_stack >= call_amount:
                         chosen_action = "call"
                         amount = call_amount
-                        print(f"[{self.name}] (Insufficient for min raise) CALLS {amount}")
                     else:
                         chosen_action = "fold"
                         amount = 0
-                        print(f"[{self.name}] FOLDS (cannot meet raise requirement)")
 
         # Store the chosen action & amount
         self.previous_action = (chosen_action, amount)
+
+        time.sleep(random.randint(1, 3))
+
         return (chosen_action, amount)

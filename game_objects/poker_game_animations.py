@@ -77,3 +77,10 @@ class PokerGameAnimations:
     def fold_player(self, player_id):
         """Animate folding a player's cards"""
         self.table.fold_player(player_id)
+
+    def reset_board_state(self):
+        """Reset all visual elements on the board"""
+        self.table.reset_board_state()
+        self.state = GameState.WAITING_FOR_PLAYERS
+        self.animation_in_progress = False
+        self.community_cards.clear()

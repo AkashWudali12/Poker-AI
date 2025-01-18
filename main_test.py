@@ -20,14 +20,9 @@ def start_game():
               UserAgent("User", rule_engine)]
 
     # Create the environment
-    env = PokerEnv(agents, 20)
-    rounds = 1
+    env = PokerEnv(agents, 20, None)
 
-    for i in range(rounds):
-        print(f"Round {i+1} of {rounds}")
-        env.play()
-        env.rotate()
-        print("=====================================")    
+    env.play()
 
     print("Game over!")
     print("=====================================")
@@ -36,7 +31,6 @@ def start_game():
         print(f"{agent.name}: {agent.stack}")
         print(f"Net profit: {agent.net_profit}")
         print("=====================================")
-    
 
 if __name__ == "__main__":
     start_game()

@@ -43,14 +43,22 @@ class PokerEnv:
         self.total_players = self.table.size()
 
         self.screen = screen
-        self._init_frontend()
+
+        self.running = True
+
+        # Initialize frontend, replace with pygame later, which will be defined in init_frontend()
+        print("Initializing frontend...")
+        
 
     def reset(self):
         """
         Reset or start a new round of poker. Shuffle deck, deal cards, reset pots, etc.
         """
+
         # Reset UI first
-        self._update_ui_state(self.clock.tick(60), pygame.event.get())
+
+        # self.animations.reset_board_state()
+        # self._update_ui_state(self.clock.tick(60), pygame.event.get())
 
         # reset agent specific state
         curr = self.table.get_head()
@@ -77,23 +85,24 @@ class PokerEnv:
 
         # Reset pot and update display
         self.pot = 0
-        self.animations.update_pot(self.pot)  # Update pot display to zero
+        # self.animations.update_pot(self.pot)  # Update pot display to zero
         
-        self._update_ui_state(self.clock.tick(60), pygame.event.get())
-
     def play(self):
         """
         Play a complete poker game from start to finish.
         Deals hands, reveals community cards, and manages betting rounds.
         """
     
-        while self.running:
-            event_list = pygame.event.get()
+        # while self.running:
+        for _ in range(1):
+            print("Round", _)
+            print("=====================================")      
+            # event_list = pygame.event.get()
 
-            for event in event_list:
-                if event.type == pygame.QUIT:
-                    self.running = False
-                    self.next_scene = "quit"
+            # for event in event_list:
+            #     if event.type == pygame.QUIT:
+            #         self.running = False
+            #         self.next_scene = "quit"
             
             # If we've already started a game, reset for a new round
             if self.started:
@@ -101,50 +110,45 @@ class PokerEnv:
             else:
                 self.started = True
        
-            self._deal_hand()  
-            print("\n=== Starting New Poker Game ===")
-            print("Initial hands dealt to players")
+            self._deal_hand()
+            self.print_game_state()  # After dealing hands
 
             self._blinds()
-            print("\n=== Handling Blinds ===")
-            print(f"Small blind pays {self.small_blind}")
-            print(f"Big blind pays {self.big_blind}")
+            self.print_game_state()  # After posting blinds
 
-            # Pre-Flop betting round
-            print("\n=== Pre-Flop Betting Round ===")
             self.round_stage = "Pre-Flop"
-            self.step()  
+            self.step()
+            self.print_game_state()  # After pre-flop betting
 
             # Flop (first 3 community cards)
             if not self.is_game_over():
                 flop_cards = [self.deck.pop() for _ in range(3)]
                 self.community_cards.extend(flop_cards)
                 self.round_stage = "Flop"
-                print(f"\n=== Flop ===\nCommunity Cards: {', '.join(map(str, self.community_cards))}")
-                self.step()  
+                self.step()
+                self.print_game_state()  # After flop betting
 
             # Turn (4th community card)
             if not self.is_game_over():
                 turn_card = self.deck.pop()
                 self.community_cards.append(turn_card)
                 self.round_stage = "Turn"
-                print(f"\n=== Turn ===\nCommunity Cards: {', '.join(map(str, self.community_cards))}")
                 self.step()
+                self.print_game_state()  # After turn betting
             
             # River (5th community card)
             if not self.is_game_over():
                 river_card = self.deck.pop()
                 self.community_cards.append(river_card)
                 self.round_stage = "River"
-                print(f"\n=== River ===\nCommunity Cards: {', '.join(map(str, self.community_cards))}")
-                self.step()   
+                self.step()
+                self.print_game_state()  # After river betting
 
             # Determine the winner and end the round
-            self._end_game()    
+            self._end_game()
+            self.print_game_state()  # Final state after winner determined
         
-            self._update_ui_state(self.clock.tick(60), pygame.event.get())
-
-        return self.next_scene
+        return "game_over"
         
 
     def step(self):
@@ -175,8 +179,18 @@ class PokerEnv:
                 action, amount = curr_action_agent.agent.decide_action(agent_state)
                 self._apply_action(curr_action_agent.agent, action, amount)
 
-                round_status_checker.add(action)
+                # Print current player's action in a formatted way
+                print("\n" + "="*80)
+                print("CURRENT PLAYER ACTION".center(80))
+                print("="*80)
+                print(f"Player: {curr_action_agent.agent.name}")
+                action_str = f"Action: {action.upper()}"
+                if amount > 0:
+                    action_str += f" ${amount}"
+                print(action_str)
+                print("="*80 + "\n")
 
+                round_status_checker.add(action)
                 previous_action = (action, amount)
             
             cnt += 1
@@ -217,8 +231,8 @@ class PokerEnv:
                 player_hands[curr.agent.name].append(curr_hand)
                 curr = curr.next
         
-        self.animations.deal_player_cards(player_hands)
-        self._update_ui_state(self.clock.tick(60), pygame.event.get())
+        # self.animations.deal_player_cards(player_hands)
+        # self._update_ui_state(self.clock.tick(60), pygame.event.get())
 
     def _blinds(self):
         """
@@ -226,57 +240,49 @@ class PokerEnv:
         """
         # Small Blind
         small_blind_agent = self.table.get_small_blind()
-        print(f"\nAgent {small_blind_agent.agent.name} posts small blind (${self.small_blind})")
         small_blind_agent.agent.stack -= self.small_blind
         small_blind_agent.agent.current_bet += self.small_blind
         small_blind_agent.agent.net_profit -= self.small_blind
         self.pot += self.small_blind
-        self.animations.animate_player_bet(small_blind_agent.agent.name, self.small_blind, small_blind_agent.agent.current_bet)  # Animate chip movement
+        # self.animations.animate_player_bet(small_blind_agent.agent.name, self.small_blind, small_blind_agent.agent.current_bet)  # Animate chip movement
 
         # Big Blind
         big_blind_agent = self.table.get_big_blind()
-        print(f"Agent {big_blind_agent.agent.name} posts big blind (${self.big_blind})")
         big_blind_agent.agent.stack -= self.big_blind
         big_blind_agent.agent.current_bet += self.big_blind
         big_blind_agent.agent.net_profit -= self.big_blind
         self.pot += self.big_blind
-        self.animations.animate_player_bet(big_blind_agent.agent.name, self.big_blind, big_blind_agent.agent.current_bet)  # Animate chip movement
+        # self.animations.animate_player_bet(big_blind_agent.agent.name, self.big_blind, big_blind_agent.agent.current_bet)  # Animate chip movement
         self.current_bet = self.big_blind
 
-        self._update_ui_state(self.clock.tick(60), pygame.event.get())
+        # self._update_ui_state(self.clock.tick(60), pygame.event.get())
 
     def _apply_action(self, agent, action, amount):
         """
         Apply the agent's action (fold, call, raise, etc.) to the game state.
         """
         if action == "fold":
-            print(f"\nAgent {agent.name} folds")
             agent.folded = True
             self.total_players -= 1
-            self.animations.fold_player(agent.name)
+            # self.animations.fold_player(agent.name)
 
         elif action == "call":
-            print(f"\nAgent {agent.name} calls ${amount}")
             agent.stack -= amount
             agent.net_profit -= amount
             agent.current_bet += amount
             self.pot += amount
-            self.animations.animate_player_bet(agent.name, amount, agent.current_bet)  # Animate chip movement
+            # self.animations.animate_player_bet(agent.name, amount, agent.current_bet)  # Animate chip movement
             
 
         elif action == "raise":
-            print(f"\nAgent {agent.name} raises by ${amount}")
             agent.stack -= amount
             agent.net_profit -= amount
             self.current_bet = (amount + agent.current_bet)
             agent.current_bet += amount
             self.pot += amount
-            self.animations.animate_player_bet(agent.name, amount, agent.current_bet)  # Animate chip movement
+            # self.animations.animate_player_bet(agent.name, amount, agent.current_bet)  # Animate chip movement
         
-        elif action == "check":
-            print(f"\nAgent {agent.name} checks")
-        
-        self._update_ui_state(self.clock.tick(60), pygame.event.get())
+        # self._update_ui_state(self.clock.tick(60), pygame.event.get())
             
     def is_game_over(self):
         """
@@ -304,7 +310,7 @@ class PokerEnv:
             winner.stack += self.pot
             winner.net_profit += self.pot
             self.pot = 0
-            self.animations.update_pot(self.pot)  # Update pot display to zero
+            # self.animations.update_pot(self.pot)  # Update pot display to zero
             return winner, "Last Man Standing"
         
         # Otherwise, compare the best 5-card hands for each active player
@@ -348,7 +354,7 @@ class PokerEnv:
             winner_player.net_profit += split_amount
         
         self.pot = 0
-        self.animations.update_pot(self.pot)  # Update pot display to zero
+        # self.animations.update_pot(self.pot)  # Update pot display to zero
         
         # Return the first winner and their hand type (e.g., "Flush", "Straight", etc.)
         return winners[0][0], winners[0][2][0]
@@ -459,3 +465,59 @@ class PokerEnv:
             btn.draw(self.screen)
 
         pygame.display.flip()
+
+    def print_game_state(self):
+        """
+        Prints a formatted view of the current game state including all player information,
+        community cards, pot, and current betting information.
+        """
+        print("\n" + "="*80)
+        print(f"ROUND STAGE: {self.round_stage}".center(80))
+        print("="*80)
+
+        # Print dealer, small blind, and big blind positions
+        small_blind = self.table.get_small_blind().agent.name
+        big_blind = self.table.get_big_blind().agent.name
+        print(f"Small Blind (${self.small_blind}): {small_blind}")
+        print(f"Big Blind (${self.big_blind}): {big_blind}")
+
+        # Print community cards
+        if self.community_cards:
+            community_str = ", ".join([f"{rank} of {suit}" for rank, suit in self.community_cards])
+            print(f"\nCommunity Cards: {community_str}")
+        else:
+            print("\nCommunity Cards: None")
+
+        # Print pot and current bet
+        print(f"\nPot: ${self.pot}")
+        print(f"Current Bet: ${self.current_bet}")
+        print(f"Players Remaining: {self.total_players}")
+
+        # Print player information
+        print("\nPLAYER STATUS:")
+        print("-"*80)
+        curr = self.table.get_head()
+        for _ in range(self.table.size()):
+            agent = curr.agent
+            position = "Small Blind" if curr == self.table.get_small_blind() else \
+                      "Big Blind" if curr == self.table.get_big_blind() else \
+                      "Player"
+            
+            status = "FOLDED" if agent.folded else "ACTIVE"
+            hand_str = ", ".join([f"{rank} of {suit}" for rank, suit in agent.hand]) if not agent.folded else "FOLDED"
+            
+            print(f"\nPlayer: {agent.name} ({position}) - {status}")
+            print(f"Hand: {hand_str}")
+            print(f"Stack: ${agent.stack}")
+            print(f"Current Bet: ${agent.current_bet}")
+            print(f"Net Profit: ${agent.net_profit}")
+            if agent.previous_action:
+                action, amount = agent.previous_action
+                action_str = f"Last Action: {action.upper()}"
+                if amount > 0:
+                    action_str += f" ${amount}"
+                print(action_str)
+            print("-"*40)
+            
+            curr = curr.next
+        print("\n")
