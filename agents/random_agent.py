@@ -17,7 +17,7 @@ class RandomAgent(BaseAgent):
         previous_table_action = game_state["previous_action"]     # e.g. ("raise", 20)
         current_bet_on_table  = game_state["current_bet"]         # e.g. 20 chips
         agent_stack           = self.stack                        # Our remaining chips
-        agent_current_bet     = self.current_bet                  # How much we've already put in this round
+        agent_current_bet     = self.current_contribution         # How much we've already put in this round
 
         # How much more we need to match the highest current bet
         call_amount = max(0, current_bet_on_table - agent_current_bet)
@@ -32,8 +32,8 @@ class RandomAgent(BaseAgent):
             legal_actions.append("check")
 
             # RAISE is legal only if we have some chips left
-            if agent_stack > 0:
-                legal_actions.append("raise")
+            # if agent_stack > 0:
+            #     legal_actions.append("raise")
             
             # Folding here is legal in most rulesets, but almost never done
             # If you want to forbid folding with no bet, do nothing
@@ -52,8 +52,8 @@ class RandomAgent(BaseAgent):
                 # We can fully call
                 legal_actions.append("call")
                 # 3) RAISE is possible only if we still have chips beyond the call_amount
-                if agent_stack > call_amount:
-                    legal_actions.append("raise")
+                # if agent_stack > call_amount:
+                #     legal_actions.append("raise")
             else:
                 # We don't have enough to fully call, so this is effectively an all-in call
                 legal_actions.append("call")
@@ -107,6 +107,7 @@ class RandomAgent(BaseAgent):
             # So we handle that below:
             if min_raise <= max_raise:
                 # We can pick a random raise between min_raise and max_raise
+                # We add the current bet to the raise amount to ensure the raise is at least the current bet
                 amount = random.randint(min_raise, max_raise)
             else:
                 # We can't meet the min raise fully, so let's either go all-in (call_amount + partial) or just call.

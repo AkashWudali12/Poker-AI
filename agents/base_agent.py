@@ -14,11 +14,12 @@ class BaseAgent(ABC):
         self.name = name
         self.reasoning_engine = reasoning_engine
         self.hand = []  # The agent's current hand, initially empty
-        self.current_bet = 0  # The current bet amount the agent has committed to
+        self.current_contribution = 0  # The current bet amount the agent has committed to
         self.stack = 0 # current stack
         self.net_profit = 0 # Track the agent's net gain/loss
         self.folded = False  # Flag to indicate if the agent has folded
         self.previous_action = None
+        self.settled = False # Flag to indicate if the agent has settled their bet
 
     @abstractmethod
     def decide_action(self, game_state):
