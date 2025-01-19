@@ -126,6 +126,4 @@ class RandomAgent(BaseAgent):
         # Store the chosen action & amount
         self.previous_action = (chosen_action, amount)
 
-        time.sleep(random.randint(1, 3))
-
         return (chosen_action, amount)

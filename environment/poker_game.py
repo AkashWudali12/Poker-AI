@@ -96,13 +96,17 @@ class PokerEnv:
             self.started = True
     
         self._deal_hand()
+        self.round_stage = "Dealing Hands"
         self.print_game_state()  # After dealing hands
 
         self._blinds()
+        self.round_stage = "Blinds"
+        self.print_game_state()  # After blinds
 
+        # Pre-Flop
         self.round_stage = "Pre-Flop"
-        self.print_game_state()  # After pre-flop betting
         self.step()
+        self.print_game_state()  # After pre-flop betting
 
         # Flop (first 3 community cards)
         if not self.is_game_over():
@@ -140,10 +144,10 @@ class PokerEnv:
         Progress one betting round. Query each agent in turn for an action,
         starting from self.action_index.
         """ 
-
         curr_action_agent = self.table.get_action()
         previous_action = None
         total_actions = 0
+        
         while True:
             if not curr_action_agent.agent.folded:
                 if self.total_players == 1:
@@ -177,24 +181,38 @@ class PokerEnv:
                 print(f"Net Profit: {curr_action_agent.agent.net_profit}")
                 print(f"Settled: {curr_action_agent.agent.settled}")
                 print("="*80 + "\n")
+
+                total_actions += 1
             
             else:
                 print(f"{curr_action_agent.agent.name} has folded")
-            
-            total_actions += 1
-
+                total_actions += 1
+        
             if total_actions == len(self.agents):
-                print("="*80)
-                print(f"Settled Agents: {len([agent for agent in self.agents if agent.settled])}")
-                print(f"Total Players: {len(self.agents)}")
-                print(f"Total Actions: {total_actions}")
-                print("="*80)
                 if len([agent for agent in self.agents if agent.settled]) == len(self.agents):
+                    print("="*80)
+                    print("All agents have settled")
+                    print(f"Settled Agents: {len([agent for agent in self.agents if agent.settled])}")
+                    print(f"Total Players: {len(self.agents)}")
+                    print(f"Total Actions: {total_actions}")
+                    print("="*80)
                     break
                 else:
+                    print("="*80)
+                    print("Not all agents have settled")
+                    print(f"Settled Agents: {len([agent for agent in self.agents if agent.settled])}")
+                    print(f"Total Players: {len(self.agents)}")
+                    print(f"Total Actions: {total_actions}")
+                    print("="*80)
                     total_actions = 0
 
             curr_action_agent = curr_action_agent.next
+        
+        self.current_bet = 0
+        
+        for agent in self.agents:
+            agent.net_profit -= agent.current_contribution
+            agent.current_contribution = 0
     
     def rotate(self):
         self.table.move_positions()
@@ -251,9 +269,9 @@ class PokerEnv:
             self.total_players -= 1
 
         elif action == "call":
-            agent.stack -= (amount - agent.current_contribution)
-            agent.current_contribution += (amount - agent.current_contribution)
-            self.pot += (amount - agent.current_contribution)   
+            agent.stack -= amount
+            agent.current_contribution += amount
+            self.pot += amount   
             agent.settled = True
 
         elif action == "raise":
