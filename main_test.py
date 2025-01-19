@@ -22,7 +22,7 @@ def start_game():
     # Create the environment
     env = PokerEnv(agents, 20, None)
 
-    for i in range(1):
+    for i in range(3):
         print("="*80)
         print(f"ROUND: {i+1}".center(80))
         print("="*80)

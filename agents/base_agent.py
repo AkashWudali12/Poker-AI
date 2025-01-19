@@ -20,6 +20,7 @@ class BaseAgent(ABC):
         self.folded = False  # Flag to indicate if the agent has folded
         self.previous_action = None
         self.settled = False # Flag to indicate if the agent has settled their bet
+        self.is_raiser = False
 
     @abstractmethod
     def decide_action(self, game_state):

@@ -6,7 +6,7 @@ Initializing frontend...
 ================================================================================
 
 ================================================================================
-                            ROUND STAGE: Not Started                            
+                             Dealing Hands RESULTS                              
 ================================================================================
 Small Blind ($2): Player 1
 Big Blind ($4): Player 2
@@ -42,7 +42,7 @@ Net Profit: $0
 ----------------------------------------
 
 Player: User (Player) - ACTIVE
-Hand: 9 of hearts, 4 of diamonds
+Hand: 8 of hearts, 5 of clubs
 Stack: $20
 Current Bet: $0
 Net Profit: $0
@@ -51,7 +51,7 @@ Net Profit: $0
 
 
 ================================================================================
-                             ROUND STAGE: Pre-Flop                              
+                                 Blinds RESULTS                                 
 ================================================================================
 Small Blind ($2): Player 1
 Big Blind ($4): Player 2
@@ -87,7 +87,7 @@ Net Profit: $0
 ----------------------------------------
 
 Player: User (Player) - ACTIVE
-Hand: 9 of hearts, 4 of diamonds
+Hand: 8 of hearts, 5 of clubs
 Stack: $20
 Current Bet: $0
 Net Profit: $0
@@ -96,235 +96,131 @@ Net Profit: $0
 
 
 ================================================================================
+                                Pre-Flop ACTION                                 
+================================================================================
+================================================================================
+Stack: 20
+Current Bet: 0
+Net Profit: 0
+Settled: False
+Raiser: False
+================================================================================
+
+================================================================================
                              CURRENT PLAYER ACTION                              
 ================================================================================
 Player: Player 3
-Action: CALL $4
-Stack: 16
-Current Bet: 4
-Net Profit: 0
+Action: FOLD
 ================================================================================
 
+================================================================================
+Stack: 20
+Current Bet: 0
+Net Profit: 0
+Settled: False
+Raiser: False
+================================================================================
 
 ================================================================================
                              CURRENT PLAYER ACTION                              
 ================================================================================
 Player: User
-Action: FOLD
-Stack: 20
-Current Bet: 0
-Net Profit: 0
+Action: RAISE $20
 ================================================================================
 
-
 ================================================================================
-                             CURRENT PLAYER ACTION                              
-================================================================================
-Player: Player 1
-Action: CALL $2
 Stack: 18
 Current Bet: 2
 Net Profit: 0
+Settled: False
+Raiser: False
 ================================================================================
-
-
-================================================================================
-                             CURRENT PLAYER ACTION                              
-================================================================================
-Player: Player 3
-Action: RAISE $11
-Stack: 5
-Current Bet: 15
-Net Profit: 0
-================================================================================
-
 
 ================================================================================
                              CURRENT PLAYER ACTION                              
 ================================================================================
 Player: Player 1
-Action: RAISE $18
-Stack: 0
-Current Bet: 20
-Net Profit: 0
+Action: FOLD
 ================================================================================
 
+================================================================================
+Stack: 16
+Current Bet: 4
+Net Profit: 0
+Settled: False
+Raiser: False
+================================================================================
 
 ================================================================================
                              CURRENT PLAYER ACTION                              
 ================================================================================
 Player: Player 2
-Action: RAISE $16
-Stack: 0
-Current Bet: 20
-Net Profit: 0
-================================================================================
-
-
-================================================================================
-                             CURRENT PLAYER ACTION                              
-================================================================================
-Player: Player 3
 Action: FOLD
-Stack: 5
-Current Bet: 15
-Net Profit: 0
 ================================================================================
 
+================================================================================
+Not all agents have settled
+Settled Agents: 3
+Total Players: 4
+Total Actions: 4
+================================================================================
+Player 3 has folded
 
 ================================================================================
-                               ROUND STAGE: Flop                                
+                                Pre-Flop RESULTS                                
 ================================================================================
 Small Blind ($2): Player 1
 Big Blind ($4): Player 2
 
-Community Cards: 2 of clubs, J of diamonds, A of diamonds
+Community Cards: None
 
-Pot: $51
-Current Bet: $16
-Players Remaining: 2
+Pot: $26
+Current Bet: $0
+Players Remaining: 1
 
 PLAYER STATUS:
 --------------------------------------------------------------------------------
 
-Player: Player 1 (Small Blind) - ACTIVE
+Player: Player 1 (Small Blind) - FOLDED
 Hand: Hidden
-Stack: $0
-Current Bet: $20
-Net Profit: $0
-Last Action: RAISE $18
+Stack: $18
+Current Bet: $0
+Net Profit: $-2
+Last Action: FOLD
 ----------------------------------------
 
-Player: Player 2 (Big Blind) - ACTIVE
+Player: Player 2 (Big Blind) - FOLDED
 Hand: Hidden
-Stack: $0
-Current Bet: $20
-Net Profit: $0
-Last Action: RAISE $16
+Stack: $16
+Current Bet: $0
+Net Profit: $-4
+Last Action: FOLD
 ----------------------------------------
 
 Player: Player 3 (Player) - FOLDED
 Hand: Hidden
-Stack: $5
-Current Bet: $15
-Net Profit: $0
-Last Action: FOLD
-----------------------------------------
-
-Player: User (Player) - FOLDED
-Hand: FOLDED
 Stack: $20
 Current Bet: $0
 Net Profit: $0
 Last Action: FOLD
 ----------------------------------------
 
-
-
-================================================================================
-                               ROUND STAGE: Turn                                
-================================================================================
-Small Blind ($2): Player 1
-Big Blind ($4): Player 2
-
-Community Cards: 2 of clubs, J of diamonds, A of diamonds, 8 of clubs
-
-Pot: $51
-Current Bet: $16
-Players Remaining: 2
-
-PLAYER STATUS:
---------------------------------------------------------------------------------
-
-Player: Player 1 (Small Blind) - ACTIVE
-Hand: Hidden
+Player: User (Player) - ACTIVE
+Hand: 8 of hearts, 5 of clubs
 Stack: $0
-Current Bet: $20
-Net Profit: $0
-Last Action: RAISE $18
-----------------------------------------
-
-Player: Player 2 (Big Blind) - ACTIVE
-Hand: Hidden
-Stack: $0
-Current Bet: $20
-Net Profit: $0
-Last Action: RAISE $16
-----------------------------------------
-
-Player: Player 3 (Player) - FOLDED
-Hand: Hidden
-Stack: $5
-Current Bet: $15
-Net Profit: $0
-Last Action: FOLD
-----------------------------------------
-
-Player: User (Player) - FOLDED
-Hand: FOLDED
-Stack: $20
 Current Bet: $0
-Net Profit: $0
-Last Action: FOLD
+Net Profit: $-20
+Last Action: RAISE $20
 ----------------------------------------
 
 
-
-================================================================================
-                               ROUND STAGE: River                               
-================================================================================
-Small Blind ($2): Player 1
-Big Blind ($4): Player 2
-
-Community Cards: 2 of clubs, J of diamonds, A of diamonds, 8 of clubs, 6 of clubs
-
-Pot: $51
-Current Bet: $16
-Players Remaining: 2
-
-PLAYER STATUS:
---------------------------------------------------------------------------------
-
-Player: Player 1 (Small Blind) - ACTIVE
-Hand: Hidden
-Stack: $0
-Current Bet: $20
-Net Profit: $0
-Last Action: RAISE $18
-----------------------------------------
-
-Player: Player 2 (Big Blind) - ACTIVE
-Hand: Hidden
-Stack: $0
-Current Bet: $20
-Net Profit: $0
-Last Action: RAISE $16
-----------------------------------------
-
-Player: Player 3 (Player) - FOLDED
-Hand: Hidden
-Stack: $5
-Current Bet: $15
-Net Profit: $0
-Last Action: FOLD
-----------------------------------------
-
-Player: User (Player) - FOLDED
-Hand: FOLDED
-Stack: $20
-Current Bet: $0
-Net Profit: $0
-Last Action: FOLD
-----------------------------------------
-
-
-Player 1 won the round with a PokerHand.PAIR
+User won the round because they did not fold.
 ================================================================================
                                     ROUND: 2                                    
 ================================================================================
 
 ================================================================================
-                            ROUND STAGE: Not Started                            
+                             Dealing Hands RESULTS                              
 ================================================================================
 Small Blind ($2): Player 2
 Big Blind ($4): Player 3
@@ -340,36 +236,36 @@ PLAYER STATUS:
 
 Player: Player 1 (Player) - ACTIVE
 Hand: Hidden
-Stack: $51
+Stack: $18
 Current Bet: $0
-Net Profit: $51
+Net Profit: $-2
 ----------------------------------------
 
 Player: Player 2 (Small Blind) - ACTIVE
 Hand: Hidden
-Stack: $20
+Stack: $16
 Current Bet: $0
-Net Profit: $0
+Net Profit: $-4
 ----------------------------------------
 
 Player: Player 3 (Big Blind) - ACTIVE
 Hand: Hidden
-Stack: $5
+Stack: $20
 Current Bet: $0
 Net Profit: $0
 ----------------------------------------
 
 Player: User (Player) - ACTIVE
-Hand: J of clubs, 2 of hearts
-Stack: $20
+Hand: 9 of spades, Q of clubs
+Stack: $26
 Current Bet: $0
-Net Profit: $0
+Net Profit: $6
 ----------------------------------------
 
 
 
 ================================================================================
-                             ROUND STAGE: Pre-Flop                              
+                                 Blinds RESULTS                                 
 ================================================================================
 Small Blind ($2): Player 2
 Big Blind ($4): Player 3
@@ -385,231 +281,247 @@ PLAYER STATUS:
 
 Player: Player 1 (Player) - ACTIVE
 Hand: Hidden
-Stack: $51
+Stack: $18
 Current Bet: $0
-Net Profit: $51
+Net Profit: $-2
 ----------------------------------------
 
 Player: Player 2 (Small Blind) - ACTIVE
 Hand: Hidden
-Stack: $18
+Stack: $14
 Current Bet: $2
-Net Profit: $0
+Net Profit: $-4
 ----------------------------------------
 
 Player: Player 3 (Big Blind) - ACTIVE
 Hand: Hidden
-Stack: $1
+Stack: $16
 Current Bet: $4
 Net Profit: $0
 ----------------------------------------
 
 Player: User (Player) - ACTIVE
-Hand: J of clubs, 2 of hearts
-Stack: $20
+Hand: 9 of spades, Q of clubs
+Stack: $26
 Current Bet: $0
-Net Profit: $0
+Net Profit: $6
 ----------------------------------------
 
 
+
+================================================================================
+                                Pre-Flop ACTION                                 
+================================================================================
+================================================================================
+Stack: 26
+Current Bet: 0
+Net Profit: 6
+Settled: False
+Raiser: False
+================================================================================
 
 ================================================================================
                              CURRENT PLAYER ACTION                              
 ================================================================================
 Player: User
-Action: FOLD
-Stack: 20
-Current Bet: 0
-Net Profit: 0
+Action: CALL $4
 ================================================================================
 
+================================================================================
+Stack: 18
+Current Bet: 0
+Net Profit: -2
+Settled: False
+Raiser: False
+================================================================================
 
 ================================================================================
                              CURRENT PLAYER ACTION                              
 ================================================================================
 Player: Player 1
-Action: RAISE $16
-Stack: 35
-Current Bet: 16
-Net Profit: 51
+Action: CALL $4
 ================================================================================
 
+================================================================================
+Stack: 14
+Current Bet: 2
+Net Profit: -4
+Settled: False
+Raiser: False
+================================================================================
 
 ================================================================================
                              CURRENT PLAYER ACTION                              
 ================================================================================
 Player: Player 2
-Action: CALL $14
-Stack: 6
-Current Bet: 14
-Net Profit: 0
+Action: CALL $2
 ================================================================================
 
+================================================================================
+Stack: 16
+Current Bet: 4
+Net Profit: 0
+Settled: False
+Raiser: False
+================================================================================
 
 ================================================================================
                              CURRENT PLAYER ACTION                              
 ================================================================================
 Player: Player 3
-Action: CALL $1
-Stack: 4
-Current Bet: 1
-Net Profit: 0
+Action: CHECK
 ================================================================================
 
+================================================================================
+All agents have settled
+Settled Agents: 4
+Total Players: 4
+Total Actions: 4
+================================================================================
+
+================================================================================
+                                Pre-Flop RESULTS                                
+================================================================================
+Small Blind ($2): Player 2
+Big Blind ($4): Player 3
+
+Community Cards: None
+
+Pot: $16
+Current Bet: $0
+Players Remaining: 4
+
+PLAYER STATUS:
+--------------------------------------------------------------------------------
+
+Player: Player 1 (Player) - ACTIVE
+Hand: Hidden
+Stack: $14
+Current Bet: $0
+Net Profit: $-6
+Last Action: CALL $4
+----------------------------------------
+
+Player: Player 2 (Small Blind) - ACTIVE
+Hand: Hidden
+Stack: $12
+Current Bet: $0
+Net Profit: $-8
+Last Action: CALL $2
+----------------------------------------
+
+Player: Player 3 (Big Blind) - ACTIVE
+Hand: Hidden
+Stack: $16
+Current Bet: $0
+Net Profit: $-4
+Last Action: CHECK
+----------------------------------------
+
+Player: User (Player) - ACTIVE
+Hand: 9 of spades, Q of clubs
+Stack: $22
+Current Bet: $0
+Net Profit: $2
+Last Action: CALL $4
+----------------------------------------
+
+
+
+================================================================================
+                                  Flop ACTION                                   
+================================================================================
+================================================================================
+Stack: 22
+Current Bet: 0
+Net Profit: 2
+Settled: True
+Raiser: False
+================================================================================
+
+================================================================================
+                             CURRENT PLAYER ACTION                              
+================================================================================
+Player: User
+Action: RAISE $20
+================================================================================
+
+================================================================================
+Stack: 14
+Current Bet: 0
+Net Profit: -6
+Settled: False
+Raiser: False
+================================================================================
 
 ================================================================================
                              CURRENT PLAYER ACTION                              
 ================================================================================
 Player: Player 1
-Action: RAISE $24
-Stack: 11
-Current Bet: 40
-Net Profit: 51
+Action: CALL $14
 ================================================================================
 
+================================================================================
+Stack: 12
+Current Bet: 0
+Net Profit: -8
+Settled: False
+Raiser: False
+================================================================================
 
 ================================================================================
                              CURRENT PLAYER ACTION                              
 ================================================================================
 Player: Player 2
 Action: FOLD
-Stack: 6
-Current Bet: 14
-Net Profit: 0
 ================================================================================
 
-
 ================================================================================
-                               ROUND STAGE: Flop                                
+Stack: 16
+Current Bet: 0
+Net Profit: -4
+Settled: False
+Raiser: False
 ================================================================================
-Small Blind ($2): Player 2
-Big Blind ($4): Player 3
-
-Community Cards: 9 of clubs, 10 of spades, 2 of diamonds
-
-Pot: $46
-Current Bet: $24
-Players Remaining: 2
-
-PLAYER STATUS:
---------------------------------------------------------------------------------
-
-Player: Player 1 (Player) - ACTIVE
-Hand: Hidden
-Stack: $11
-Current Bet: $40
-Net Profit: $51
-Last Action: RAISE $24
-----------------------------------------
-
-Player: Player 2 (Small Blind) - FOLDED
-Hand: Hidden
-Stack: $6
-Current Bet: $14
-Net Profit: $0
-Last Action: FOLD
-----------------------------------------
-
-Player: Player 3 (Big Blind) - ACTIVE
-Hand: Hidden
-Stack: $4
-Current Bet: $1
-Net Profit: $0
-Last Action: CALL $1
-----------------------------------------
-
-Player: User (Player) - FOLDED
-Hand: FOLDED
-Stack: $20
-Current Bet: $0
-Net Profit: $0
-Last Action: FOLD
-----------------------------------------
-
-
 
 ================================================================================
                              CURRENT PLAYER ACTION                              
 ================================================================================
-Player: Player 1
-Action: RAISE $10
-Stack: 1
-Current Bet: 50
-Net Profit: 51
+Player: Player 3
+Action: CALL $16
 ================================================================================
 
+================================================================================
+Not all agents have settled
+Settled Agents: 3
+Total Players: 4
+Total Actions: 4
+================================================================================
+================================================================================
+Stack: 2
+Current Bet: 20
+Net Profit: 2
+Settled: False
+Raiser: True
+================================================================================
+================================================================================
+At original raiser
+Settled Agents: 3
+Total Players: 4
+================================================================================
+Everyone called raise or folded
 
 ================================================================================
-                               ROUND STAGE: Turn                                
+                                  Flop RESULTS                                  
 ================================================================================
 Small Blind ($2): Player 2
 Big Blind ($4): Player 3
 
-Community Cards: 9 of clubs, 10 of spades, 2 of diamonds, Q of hearts
+Community Cards: 5 of spades, 5 of hearts, 4 of hearts
 
-Pot: $56
-Current Bet: $10
-Players Remaining: 2
-
-PLAYER STATUS:
---------------------------------------------------------------------------------
-
-Player: Player 1 (Player) - ACTIVE
-Hand: Hidden
-Stack: $1
-Current Bet: $50
-Net Profit: $51
-Last Action: RAISE $10
-----------------------------------------
-
-Player: Player 2 (Small Blind) - FOLDED
-Hand: Hidden
-Stack: $6
-Current Bet: $14
-Net Profit: $0
-Last Action: FOLD
-----------------------------------------
-
-Player: Player 3 (Big Blind) - ACTIVE
-Hand: Hidden
-Stack: $4
-Current Bet: $1
-Net Profit: $0
-Last Action: CALL $1
-----------------------------------------
-
-Player: User (Player) - FOLDED
-Hand: FOLDED
-Stack: $20
+Pot: $66
 Current Bet: $0
-Net Profit: $0
-Last Action: FOLD
-----------------------------------------
-
-
-
-================================================================================
-                             CURRENT PLAYER ACTION                              
-================================================================================
-Player: Player 1
-Action: RAISE $1
-Stack: 0
-Current Bet: 51
-Net Profit: 51
-================================================================================
-
-
-================================================================================
-                               ROUND STAGE: River                               
-================================================================================
-Small Blind ($2): Player 2
-Big Blind ($4): Player 3
-
-Community Cards: 9 of clubs, 10 of spades, 2 of diamonds, Q of hearts, 7 of spades
-
-Pot: $57
-Current Bet: $1
-Players Remaining: 2
+Players Remaining: 3
 
 PLAYER STATUS:
 --------------------------------------------------------------------------------
@@ -617,49 +529,377 @@ PLAYER STATUS:
 Player: Player 1 (Player) - ACTIVE
 Hand: Hidden
 Stack: $0
-Current Bet: $51
-Net Profit: $51
-Last Action: RAISE $1
+Current Bet: $0
+Net Profit: $-20
+Last Action: CALL $14
 ----------------------------------------
 
 Player: Player 2 (Small Blind) - FOLDED
 Hand: Hidden
-Stack: $6
-Current Bet: $14
-Net Profit: $0
+Stack: $12
+Current Bet: $0
+Net Profit: $-8
 Last Action: FOLD
 ----------------------------------------
 
 Player: Player 3 (Big Blind) - ACTIVE
 Hand: Hidden
-Stack: $4
-Current Bet: $1
-Net Profit: $0
-Last Action: CALL $1
+Stack: $0
+Current Bet: $0
+Net Profit: $-20
+Last Action: CALL $16
 ----------------------------------------
 
-Player: User (Player) - FOLDED
-Hand: FOLDED
-Stack: $20
+Player: User (Player) - ACTIVE
+Hand: 9 of spades, Q of clubs
+Stack: $2
 Current Bet: $0
-Net Profit: $0
+Net Profit: $-18
+Last Action: RAISE $20
+----------------------------------------
+
+
+
+================================================================================
+                                  Turn RESULTS                                  
+================================================================================
+Small Blind ($2): Player 2
+Big Blind ($4): Player 3
+
+Community Cards: 5 of spades, 5 of hearts, 4 of hearts, 10 of hearts
+
+Pot: $66
+Current Bet: $0
+Players Remaining: 3
+
+PLAYER STATUS:
+--------------------------------------------------------------------------------
+
+Player: Player 1 (Player) - ACTIVE
+Hand: Hidden
+Stack: $0
+Current Bet: $0
+Net Profit: $-20
+Last Action: CALL $14
+----------------------------------------
+
+Player: Player 2 (Small Blind) - FOLDED
+Hand: Hidden
+Stack: $12
+Current Bet: $0
+Net Profit: $-8
 Last Action: FOLD
 ----------------------------------------
 
+Player: Player 3 (Big Blind) - ACTIVE
+Hand: Hidden
+Stack: $0
+Current Bet: $0
+Net Profit: $-20
+Last Action: CALL $16
+----------------------------------------
 
-Player 1 won the round with a PokerHand.PAIR
+Player: User (Player) - ACTIVE
+Hand: 9 of spades, Q of clubs
+Stack: $2
+Current Bet: $0
+Net Profit: $-18
+Last Action: RAISE $20
+----------------------------------------
+
+
+
+================================================================================
+                                 River RESULTS                                  
+================================================================================
+Small Blind ($2): Player 2
+Big Blind ($4): Player 3
+
+Community Cards: 5 of spades, 5 of hearts, 4 of hearts, 10 of hearts, K of spades
+
+Pot: $66
+Current Bet: $0
+Players Remaining: 3
+
+PLAYER STATUS:
+--------------------------------------------------------------------------------
+
+Player: Player 1 (Player) - ACTIVE
+Hand: Hidden
+Stack: $0
+Current Bet: $0
+Net Profit: $-20
+Last Action: CALL $14
+----------------------------------------
+
+Player: Player 2 (Small Blind) - FOLDED
+Hand: Hidden
+Stack: $12
+Current Bet: $0
+Net Profit: $-8
+Last Action: FOLD
+----------------------------------------
+
+Player: Player 3 (Big Blind) - ACTIVE
+Hand: Hidden
+Stack: $0
+Current Bet: $0
+Net Profit: $-20
+Last Action: CALL $16
+----------------------------------------
+
+Player: User (Player) - ACTIVE
+Hand: 9 of spades, Q of clubs
+Stack: $2
+Current Bet: $0
+Net Profit: $-18
+Last Action: RAISE $20
+----------------------------------------
+
+
+Player 3 won the round with a PokerHand.TWO_PAIR
+================================================================================
+                                    ROUND: 3                                    
+================================================================================
+
+================================================================================
+                             Dealing Hands RESULTS                              
+================================================================================
+Small Blind ($2): Player 3
+Big Blind ($4): User
+
+Community Cards: None
+
+Pot: $0
+Current Bet: $0
+Players Remaining: 4
+
+PLAYER STATUS:
+--------------------------------------------------------------------------------
+
+Player: Player 1 (Player) - ACTIVE
+Hand: Hidden
+Stack: $20
+Current Bet: $0
+Net Profit: $-20
+----------------------------------------
+
+Player: Player 2 (Player) - ACTIVE
+Hand: Hidden
+Stack: $12
+Current Bet: $0
+Net Profit: $-8
+----------------------------------------
+
+Player: Player 3 (Small Blind) - ACTIVE
+Hand: Hidden
+Stack: $66
+Current Bet: $0
+Net Profit: $46
+----------------------------------------
+
+Player: User (Big Blind) - ACTIVE
+Hand: 10 of spades, 7 of hearts
+Stack: $20
+Current Bet: $0
+Net Profit: $-18
+----------------------------------------
+
+
+
+================================================================================
+                                 Blinds RESULTS                                 
+================================================================================
+Small Blind ($2): Player 3
+Big Blind ($4): User
+
+Community Cards: None
+
+Pot: $6
+Current Bet: $4
+Players Remaining: 4
+
+PLAYER STATUS:
+--------------------------------------------------------------------------------
+
+Player: Player 1 (Player) - ACTIVE
+Hand: Hidden
+Stack: $20
+Current Bet: $0
+Net Profit: $-20
+----------------------------------------
+
+Player: Player 2 (Player) - ACTIVE
+Hand: Hidden
+Stack: $12
+Current Bet: $0
+Net Profit: $-8
+----------------------------------------
+
+Player: Player 3 (Small Blind) - ACTIVE
+Hand: Hidden
+Stack: $64
+Current Bet: $2
+Net Profit: $46
+----------------------------------------
+
+Player: User (Big Blind) - ACTIVE
+Hand: 10 of spades, 7 of hearts
+Stack: $16
+Current Bet: $4
+Net Profit: $-18
+----------------------------------------
+
+
+
+================================================================================
+                                Pre-Flop ACTION                                 
+================================================================================
+================================================================================
+Stack: 20
+Current Bet: 0
+Net Profit: -20
+Settled: False
+Raiser: False
+================================================================================
+
+================================================================================
+                             CURRENT PLAYER ACTION                              
+================================================================================
+Player: Player 1
+Action: FOLD
+================================================================================
+
+================================================================================
+Stack: 12
+Current Bet: 0
+Net Profit: -8
+Settled: False
+Raiser: False
+================================================================================
+
+================================================================================
+                             CURRENT PLAYER ACTION                              
+================================================================================
+Player: Player 2
+Action: CALL $4
+================================================================================
+
+================================================================================
+Stack: 64
+Current Bet: 2
+Net Profit: 46
+Settled: False
+Raiser: False
+================================================================================
+
+================================================================================
+                             CURRENT PLAYER ACTION                              
+================================================================================
+Player: Player 3
+Action: FOLD
+================================================================================
+
+================================================================================
+Stack: 16
+Current Bet: 4
+Net Profit: -18
+Settled: False
+Raiser: False
+================================================================================
+
+================================================================================
+                             CURRENT PLAYER ACTION                              
+================================================================================
+Player: User
+Action: RAISE $5
+================================================================================
+
+================================================================================
+Not all agents have settled
+Settled Agents: 2
+Total Players: 4
+Total Actions: 4
+================================================================================
+Player 1 has folded
+================================================================================
+Stack: 8
+Current Bet: 4
+Net Profit: -8
+Settled: False
+Raiser: False
+================================================================================
+
+================================================================================
+                             CURRENT PLAYER ACTION                              
+================================================================================
+Player: Player 2
+Action: FOLD
+================================================================================
+
+Player 3 has folded
+
+================================================================================
+                                Pre-Flop RESULTS                                
+================================================================================
+Small Blind ($2): Player 3
+Big Blind ($4): User
+
+Community Cards: None
+
+Pot: $15
+Current Bet: $0
+Players Remaining: 1
+
+PLAYER STATUS:
+--------------------------------------------------------------------------------
+
+Player: Player 1 (Player) - FOLDED
+Hand: Hidden
+Stack: $20
+Current Bet: $0
+Net Profit: $-20
+Last Action: FOLD
+----------------------------------------
+
+Player: Player 2 (Player) - FOLDED
+Hand: Hidden
+Stack: $8
+Current Bet: $0
+Net Profit: $-12
+Last Action: FOLD
+----------------------------------------
+
+Player: Player 3 (Small Blind) - FOLDED
+Hand: Hidden
+Stack: $64
+Current Bet: $0
+Net Profit: $44
+Last Action: FOLD
+----------------------------------------
+
+Player: User (Big Blind) - ACTIVE
+Hand: 10 of spades, 7 of hearts
+Stack: $15
+Current Bet: $0
+Net Profit: $-23
+Last Action: RAISE $5
+----------------------------------------
+
+
+User won the round because they did not fold.
 Game over!
 =====================================
 Final results:
-Player 1: 57
-Net profit: 108
+Player 1: 20
+Net profit: -20
 =====================================
-Player 2: 6
-Net profit: 0
+Player 2: 8
+Net profit: -12
 =====================================
-Player 3: 4
-Net profit: 0
+Player 3: 64
+Net profit: 44
 =====================================
-User: 20
-Net profit: 0
+User: 30
+Net profit: -8
 =====================================

@@ -61,10 +61,12 @@ class PokerEnv:
         curr = self.table.get_head()
         for _ in range(self.table.size()):
             # If an agent busted (stack <= 0), reset them to buy_in
-            if curr.agent.stack <= 0:
+            if curr.agent.stack < self.big_blind:
                 curr.agent.stack = self.buy_in
             curr.agent.hand = []
             curr.agent.folded = False
+            curr.agent.is_raiser = False
+            curr.agent.settled = False
             curr.agent.current_contribution = 0
             curr.agent.previous_action = None
             curr = curr.next
@@ -95,12 +97,12 @@ class PokerEnv:
         else:
             self.started = True
     
-        self._deal_hand()
         self.round_stage = "Dealing Hands"
+        self._deal_hand()
         self.print_game_state()  # After dealing hands
 
-        self._blinds()
         self.round_stage = "Blinds"
+        self._blinds()
         self.print_game_state()  # After blinds
 
         # Pre-Flop
@@ -113,7 +115,9 @@ class PokerEnv:
             flop_cards = [self.deck.pop() for _ in range(3)]
             self.community_cards.extend(flop_cards)
             self.round_stage = "Flop"
-            self.step()
+            all_in_players = len([agent for agent in self.agents if agent.folded or agent.stack == 0])
+            if all_in_players < len(self.agents) - 1:
+                self.step()
             self.print_game_state()  # After flop betting
 
         # Turn (4th community card)
@@ -121,7 +125,9 @@ class PokerEnv:
             turn_card = self.deck.pop()
             self.community_cards.append(turn_card)
             self.round_stage = "Turn"
-            self.step()
+            all_in_players = len([agent for agent in self.agents if agent.folded or agent.stack == 0])
+            if all_in_players < len(self.agents) - 1:
+                self.step()
             self.print_game_state()  # After turn betting
         
         # River (5th community card)
@@ -129,7 +135,9 @@ class PokerEnv:
             river_card = self.deck.pop()
             self.community_cards.append(river_card)
             self.round_stage = "River"
-            self.step()
+            all_in_players = len([agent for agent in self.agents if agent.folded or agent.stack == 0])
+            if all_in_players < len(self.agents) - 1:
+                self.step()
             self.print_game_state()  # After river betting
 
         # Determine the winner and end the round
@@ -147,11 +155,46 @@ class PokerEnv:
         curr_action_agent = self.table.get_action()
         previous_action = None
         total_actions = 0
+
+        print("\n" + "="*80)
+        print(f"{self.round_stage} ACTION".center(80))
+        print("="*80)
         
         while True:
-            if not curr_action_agent.agent.folded:
-                if self.total_players == 1:
+            if self.total_players == 1:
                     break
+            
+            if not curr_action_agent.agent.folded and curr_action_agent.agent.stack > 0:
+                print("="*80)
+                print(f"Stack: {curr_action_agent.agent.stack}")
+                print(f"Current Bet: {curr_action_agent.agent.current_contribution}")
+                print(f"Net Profit: {curr_action_agent.agent.net_profit}")
+                print(f"Settled: {curr_action_agent.agent.settled}")
+                print(f"Raiser: {curr_action_agent.agent.is_raiser}")
+                print("="*80)
+
+                if curr_action_agent.agent.is_raiser:
+
+                    # at original raiser, need to reset bets.
+
+                    settled_count = len([agent for agent in self.agents if agent.settled])
+
+                    print("="*80)
+                    print("At original raiser")
+                    print(f"Settled Agents: {settled_count}")
+                    print(f"Total Players: {len(self.agents)}")
+                    print("="*80)
+
+                    if len(self.agents) - settled_count == 1:
+                        print("Everyone called raise or folded")
+                        break                 
+
+                    self.current_bet = 0
+        
+                    for agent in self.agents:
+                        agent.net_profit -= agent.current_contribution
+                        agent.current_contribution = 0
+                        agent.is_raiser = False
 
                 agent_state = {
                     "game_stage": self.round_stage,
@@ -176,10 +219,6 @@ class PokerEnv:
                 if amount > 0:
                     action_str += f" ${amount}"
                 print(action_str)
-                print(f"Stack: {curr_action_agent.agent.stack}")
-                print(f"Current Bet: {curr_action_agent.agent.current_contribution}")
-                print(f"Net Profit: {curr_action_agent.agent.net_profit}")
-                print(f"Settled: {curr_action_agent.agent.settled}")
                 print("="*80 + "\n")
 
                 total_actions += 1
@@ -189,7 +228,8 @@ class PokerEnv:
                 total_actions += 1
         
             if total_actions == len(self.agents):
-                if len([agent for agent in self.agents if agent.settled]) == len(self.agents):
+                settled_count = len([agent for agent in self.agents if agent.settled])
+                if settled_count == len(self.agents):
                     print("="*80)
                     print("All agents have settled")
                     print(f"Settled Agents: {len([agent for agent in self.agents if agent.settled])}")
@@ -213,6 +253,7 @@ class PokerEnv:
         for agent in self.agents:
             agent.net_profit -= agent.current_contribution
             agent.current_contribution = 0
+            agent.is_raiser = False
     
     def rotate(self):
         self.table.move_positions()
@@ -275,13 +316,16 @@ class PokerEnv:
             agent.settled = True
 
         elif action == "raise":
-            agent.stack -= amount
+            agent.stack -= (amount - agent.current_contribution)
             self.current_bet = amount 
-            agent.current_contribution += amount
-            self.pot += amount
-            for agent in self.agents:
-                if not agent.folded:
-                    agent.settled = False
+            agent.current_contribution += (amount - agent.current_contribution)
+            self.pot += agent.current_contribution
+            agent.is_raiser = True
+            for curr_agent in self.agents:
+                if not curr_agent.folded:
+                    curr_agent.settled = False
+                if curr_agent.name != agent.name:
+                    curr_agent.is_raiser = False
     
         elif action == "check":
             agent.settled = True
@@ -290,6 +334,7 @@ class PokerEnv:
         """
         The game is over if only one player remains or if we've revealed all 5 community cards.
         """
+        
         return self.total_players == 1 or len(self.community_cards) == 5
 
     def _create_deck(self):
@@ -472,7 +517,7 @@ class PokerEnv:
         community cards, pot, and current betting information.
         """
         print("\n" + "="*80)
-        print(f"ROUND STAGE: {self.round_stage}".center(80))
+        print(f"{self.round_stage} RESULTS".center(80))
         print("="*80)
 
         # Print dealer, small blind, and big blind positions

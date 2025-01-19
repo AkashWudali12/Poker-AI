@@ -14,7 +14,6 @@ class RandomAgent(BaseAgent):
         (self.current_bet), and how many chips we have left (self.stack).
         """
 
-        previous_table_action = game_state["previous_action"]     # e.g. ("raise", 20)
         current_bet_on_table  = game_state["current_bet"]         # e.g. 20 chips
         agent_stack           = self.stack                        # Our remaining chips
         agent_current_bet     = self.current_contribution         # How much we've already put in this round
@@ -32,8 +31,8 @@ class RandomAgent(BaseAgent):
             legal_actions.append("check")
 
             # RAISE is legal only if we have some chips left
-            # if agent_stack > 0:
-            #     legal_actions.append("raise")
+            if agent_stack >= 2:
+                legal_actions.append("raise")
             
             # Folding here is legal in most rulesets, but almost never done
             # If you want to forbid folding with no bet, do nothing
@@ -52,8 +51,9 @@ class RandomAgent(BaseAgent):
                 # We can fully call
                 legal_actions.append("call")
                 # 3) RAISE is possible only if we still have chips beyond the call_amount
-                # if agent_stack > call_amount:
-                #     legal_actions.append("raise")
+                # Taking account the min raise
+                if agent_stack >= current_bet_on_table * 2 and agent_stack > call_amount:
+                    legal_actions.append("raise")
             else:
                 # We don't have enough to fully call, so this is effectively an all-in call
                 legal_actions.append("call")
@@ -112,16 +112,7 @@ class RandomAgent(BaseAgent):
             else:
                 # We can't meet the min raise fully, so let's either go all-in (call_amount + partial) or just call.
                 # Typically, you'd do an all-in for your entire stack. Let's do that.
-                if agent_stack > call_amount:
-                    amount = agent_stack  # all-in
-                else:
-                    # We can't raise at all, so revert to call or fold
-                    if agent_stack >= call_amount:
-                        chosen_action = "call"
-                        amount = call_amount
-                    else:
-                        chosen_action = "fold"
-                        amount = 0
+                amount = agent_stack  # all-in
 
         # Store the chosen action & amount
         self.previous_action = (chosen_action, amount)
